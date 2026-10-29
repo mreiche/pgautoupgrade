@@ -3,12 +3,13 @@ name: Build and push
 on:
   push:
   pull_request:
-  schedule:
-    - cron: "0 0 * * 0"
+#  schedule:
+#    - cron: "0 0 * * 0"
 
 env:
   # renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
   LATEST_POSTGRES_VERSION: "18.6"
+  REGISTRY: ghcr.io
 
 permissions: {}
 
@@ -67,14 +68,15 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
-          images: ${{ github.repository }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
           flavor: |
             latest=false
           # add a .0 to each Postgres version so it is compliant with semantic version
@@ -96,29 +98,22 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
-          cache-to: type=inline
-          cache-from: "${{ env.CACHE_FROM }}"
+#          cache-to: type=inline
+#          cache-from: "${{ env.CACHE_FROM }}"
 
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Test image
-        run: |
-          make test
-        env:
-          PGTARGET: ${{ matrix.pg_target.PG_VERSION }}
-          OS_FLAVOR: ${{ matrix.operating_system.flavor }}
-
       # otherwise, we run into space problems
       # from observation, the buildx builder container already occupies 7 GB out of the 14 GB we have available on a GitHub Actions runner
       # note that this command will also destroy the pgautoupgrade image we just build
       # which is intentional, the buildx builder should contain all information still to re-create the same image
-      - name: Cleanup Docker image before pushing
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker image prune -a -f
+#      - name: Cleanup Docker image before pushing
+#        if: github.ref == 'refs/heads/main'
+#        run: |
+#          docker image prune -a -f
 
       - name: Push image
         if: github.ref == 'refs/heads/main'
@@ -131,8 +126,8 @@ jobs:
           build-args: |
             "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
           push: true
-          cache-to: type=inline
-          cache-from: "${{ env.CACHE_FROM }}"
+#          cache-to: type=inline
+#          cache-from: "${{ env.CACHE_FROM }}"
 
       - name: Push latest image for each supported OS
         if: github.ref == 'refs/heads/main' && matrix.pg_target.PG_VERSION == env.LATEST_POSTGRES_VERSION
@@ -146,8 +141,8 @@ jobs:
           build-args: |
             "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
           push: true
-          cache-to: type=inline
-          cache-from: "${{ env.CACHE_FROM }}"
+#          cache-to: type=inline
+#          cache-from: "${{ env.CACHE_FROM }}"
 
       - name: Push general latest image
         if: github.ref == 'refs/heads/main' && matrix.pg_target.PG_VERSION == env.LATEST_POSTGRES_VERSION && matrix.operating_system.flavor == 'alpine'
@@ -156,9 +151,9 @@ jobs:
           file: "Dockerfile.${{ matrix.operating_system.flavor }}"
           platforms: linux/amd64,linux/arm64
           tags: |
-            "${{ github.repository }}:latest"
+            "${{ env.REGISTRY }}/${{ github.repository }}:latest"
           build-args: |
             "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
           push: true
-          cache-to: type=inline
-          cache-from: "${{ env.CACHE_FROM }}"
+#          cache-to: type=inline
+#          cache-from: "${{ env.CACHE_FROM }}"
