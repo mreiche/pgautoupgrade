@@ -21,6 +21,21 @@
   [[ "$output" =~ "Upgrading from lib/postgresql/data to lib/postgresql/18/docker" ]]
 }
 
+@test "14 to 17" {
+  pgdata_base="lib/postgresql"
+  pgdata="${pgdata_base}/data"
+  mkdir -p "${pgdata}"
+  echo "14" > "${pgdata}/PG_VERSION"
+
+  run env \
+    PGDATA="${pgdata}" \
+    PGDATA_BASE="${pgdata_base}" \
+    PGTARGET="17" \
+    "../pg_upgrade-entrypoint.sh"
+  [[ "$output" =~ "Upgrading from lib/postgresql/data to lib/postgresql/17/docker" ]]
+  [[ "$output" =~ "pg_upgrade --link -b /usr/local-pg14/bin -B /usr/local-pg17/bin" ]]
+}
+
 @test "15 to 18" {
   pgdata_base="lib/postgresql"
   pgdata="${pgdata_base}/15/data"

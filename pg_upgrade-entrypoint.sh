@@ -51,14 +51,20 @@ echo "Upgrading from ${source_dir} to ${target_dir}..."
 mkdir -p "${target_dir}"
 source_bin_dir="/usr/local-pg${source_version}/bin"
 psql_bin=$(which psql)
-target_bin_dir=$(dirname ${psql_bin})
+
+binary_version=$(psql --version | awk '{print $3}' | cut -d. -f1)
+if [ "${binary_version}" == "${PGTARGET}" ]; then
+  target_bin_dir=$(dirname ${psql_bin})
+else
+  target_bin_dir="/usr/local-pg${PGTARGET}/bin"
+fi
 
 set -x
 
 initdb -D "${target_dir}" --no-data-checksums
 
 cd "${PGDATA_BASE}"
-mkdir -m 700 /tmp/pg-upgrade-sockets
+mkdir -m 700 -p /tmp/pg-upgrade-sockets
 
 pg_upgrade \
   --link \

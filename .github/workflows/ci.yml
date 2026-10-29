@@ -7,8 +7,6 @@ on:
 #    - cron: "0 0 * * 0"
 
 env:
-  # renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
-  LATEST_POSTGRES_VERSION: "18.6"
   REGISTRY: ghcr.io
 
 permissions: {}
@@ -106,15 +104,6 @@ jobs:
         with:
           persist-credentials: false
 
-      # otherwise, we run into space problems
-      # from observation, the buildx builder container already occupies 7 GB out of the 14 GB we have available on a GitHub Actions runner
-      # note that this command will also destroy the pgautoupgrade image we just build
-      # which is intentional, the buildx builder should contain all information still to re-create the same image
-#      - name: Cleanup Docker image before pushing
-#        if: github.ref == 'refs/heads/main'
-#        run: |
-#          docker image prune -a -f
-
       - name: Push image
         if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
@@ -130,7 +119,6 @@ jobs:
 #          cache-from: "${{ env.CACHE_FROM }}"
 
       - name: Push latest image for each supported OS
-        if: github.ref == 'refs/heads/main' && matrix.pg_target.PG_VERSION == env.LATEST_POSTGRES_VERSION
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           file: "${{ matrix.operating_system.flavor }}.Dockerfile"
@@ -145,7 +133,6 @@ jobs:
 #          cache-from: "${{ env.CACHE_FROM }}"
 
       - name: Push general latest image
-        if: github.ref == 'refs/heads/main' && matrix.pg_target.PG_VERSION == env.LATEST_POSTGRES_VERSION && matrix.operating_system.flavor == 'alpine'
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           file: "Dockerfile.${{ matrix.operating_system.flavor }}"
