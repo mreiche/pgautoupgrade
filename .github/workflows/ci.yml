@@ -1,0 +1,164 @@
+name: Build and push
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * 0"
+
+env:
+  # renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
+  LATEST_POSTGRES_VERSION: "18.6"
+
+permissions: {}
+
+jobs:
+  target-images:
+    runs-on: ubuntu-26.04
+    # otherwise, it would skip the build entirely (because the base step does not run)
+    if: always()
+#    env:
+#      # but still use our public caches in any case
+#      # they might be outdated, in which case a full rebuild will be triggered
+#      CACHE_FROM: |
+#        type=registry,ref=${{ github.repository }}:build-9.5-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:build-9.6-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:build-10-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:build-11-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:build-12-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:build-13-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:build-14-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:build-15-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:build-16-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:build-17-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:${{ matrix.pg_target.PG_VERSION }}-${{ matrix.operating_system.flavor }}
+#        type=registry,ref=${{ github.repository }}:${{ matrix.pg_target.PG_VERSION }}-${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
+#        type=registry,ref=${{ github.repository }}:${{ matrix.pg_target.PG_VERSION }}-${{ matrix.operating_system.alias }}
+
+    strategy:
+      matrix:
+        operating_system:
+          - flavor: "alpine"
+            # renovate: datasource=docker depName=alpine versioning=docker
+            OS_VERSION: "3.24"
+            alias: "alpine"
+          - flavor: "debian"
+            alias: "debian"
+        pg_target:
+#          - # renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
+#            PG_VERSION: "14.24"
+#          - # renovate: datasource=repology depName=homebrew/postgresql@15 versioning=loose
+#            PG_VERSION: "15.19"
+#          - # renovate: datasource=repology depName=homebrew/postgresql@16 versioning=loose
+#            PG_VERSION: "16.15"
+#          - # renovate: datasource=repology depName=homebrew/postgresql@17 versioning=loose
+#            PG_VERSION: "17.11"
+          - # renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
+            PG_VERSION: "18.6"
+
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Login to Docker Hub
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ github.repository }}
+          flavor: |
+            latest=false
+          # add a .0 to each Postgres version so it is compliant with semantic version
+          # note that the .0 never ends up on an actual tag
+          tags: |
+            type=semver,pattern={{major}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}
+            type=semver,pattern={{major}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
+            type=semver,pattern={{major}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.alias }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.alias }}
+
+      - name: Build image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          file: "${{ matrix.operating_system.flavor }}.Dockerfile"
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
+          cache-to: type=inline
+          cache-from: "${{ env.CACHE_FROM }}"
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Test image
+        run: |
+          make test
+        env:
+          PGTARGET: ${{ matrix.pg_target.PG_VERSION }}
+          OS_FLAVOR: ${{ matrix.operating_system.flavor }}
+
+      # otherwise, we run into space problems
+      # from observation, the buildx builder container already occupies 7 GB out of the 14 GB we have available on a GitHub Actions runner
+      # note that this command will also destroy the pgautoupgrade image we just build
+      # which is intentional, the buildx builder should contain all information still to re-create the same image
+      - name: Cleanup Docker image before pushing
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker image prune -a -f
+
+      - name: Push image
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          file: "${{ matrix.operating_system.flavor }}.Dockerfile"
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
+          push: true
+          cache-to: type=inline
+          cache-from: "${{ env.CACHE_FROM }}"
+
+      - name: Push latest image for each supported OS
+        if: github.ref == 'refs/heads/main' && matrix.pg_target.PG_VERSION == env.LATEST_POSTGRES_VERSION
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          file: "${{ matrix.operating_system.flavor }}.Dockerfile"
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            "${{ github.repository }}:${{ matrix.operating_system.flavor }}"
+            "${{ github.repository }}:${{ matrix.operating_system.alias }}"
+          build-args: |
+            "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
+          push: true
+          cache-to: type=inline
+          cache-from: "${{ env.CACHE_FROM }}"
+
+      - name: Push general latest image
+        if: github.ref == 'refs/heads/main' && matrix.pg_target.PG_VERSION == env.LATEST_POSTGRES_VERSION && matrix.operating_system.flavor == 'alpine'
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          file: "Dockerfile.${{ matrix.operating_system.flavor }}"
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            "${{ github.repository }}:latest"
+          build-args: |
+            "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
+          push: true
+          cache-to: type=inline
+          cache-from: "${{ env.CACHE_FROM }}"
