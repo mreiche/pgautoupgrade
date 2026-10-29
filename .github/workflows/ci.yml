@@ -118,8 +118,8 @@ jobs:
           build-args: |
             "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
           push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.operating_system.flavor }}
+          cache-to: type=gha,scope=${{ matrix.operating_system.flavor }},mode=max
 
 #      - name: Push latest image for each supported OS
 #        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0

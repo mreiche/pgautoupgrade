@@ -61,6 +61,8 @@ fi
 
 set -x
 
+rm -rf "${target_dir}"
+
 initdb -D "${target_dir}" --no-data-checksums
 
 cd "${PGDATA_BASE}"
