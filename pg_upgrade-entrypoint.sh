@@ -46,6 +46,11 @@ else
   target_dir="${PGDATA_BASE:-/var/lib/postgresql}/${target_version}/docker"
 fi
 
+if [ "${CLEAN_TARGET}" == "1" ]; then
+  echo Deleting ${target_dir}
+  rm -rf "${target_dir}"
+fi
+
 echo "Upgrading from ${source_dir} to ${target_dir}..."
 
 mkdir -p "${target_dir}"
@@ -60,8 +65,6 @@ else
 fi
 
 set -x
-
-rm -rf "${target_dir}"
 
 initdb -D "${target_dir}" --no-data-checksums
 
