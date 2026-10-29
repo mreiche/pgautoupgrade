@@ -19,11 +19,11 @@ test -d "${source_dir}" || {
   exit 2
 }
 
-pidfile="${source_dir}/postmaster.pid"
-if [ -f "${pidfile}" ]; then
-  echo "Pidfile found: ${pidfile}. Source server was not gracefully shut down. Aborting."
-  exit 2
-fi
+#pidfile="${source_dir}/postmaster.pid"
+#if [ -f "${pidfile}" ]; then
+#  echo "Pidfile found: ${pidfile}. Source server was not gracefully shut down. Aborting."
+#  exit 2
+#fi
 
 test -f "${source_dir}/PG_VERSION" || {
   echo "${source_dir}/PG_VERSION not found. Aborting."
