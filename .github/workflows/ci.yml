@@ -45,6 +45,8 @@ jobs:
             OS_VERSION: "3.24"
             alias: "alpine"
           - flavor: "debian"
+            # renovate: datasource=docker depName=debian versioning=docker
+            OS_VERSION: "13.7"
             alias: "debian"
         pg_target:
 #          - # renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
