@@ -62,7 +62,7 @@ RUN apt update && \
   && locale -a \
   && apt clean
 
-ENV PGTARGET="18"
+ENV PGTARGET=${PGTARGET}
 
 # Copy across all our shell scripts
 WORKDIR /opt
