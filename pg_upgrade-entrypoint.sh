@@ -19,11 +19,11 @@ test -d "${source_dir}" || {
   exit 2
 }
 
-pidfile="${source_dir}/postmaster.pid"
-if [ -f "${pidfile}" ]; then
-  echo "Pidfile found: ${pidfile}. Source server was not gracefully shut down. Aborting."
-  exit 2
-fi
+#pidfile="${source_dir}/postmaster.pid"
+#if [ -f "${pidfile}" ]; then
+#  echo "Pidfile found: ${pidfile}. Source server was not gracefully shut down. Aborting."
+#  exit 2
+#fi
 
 test -f "${source_dir}/PG_VERSION" || {
   echo "${source_dir}/PG_VERSION not found. Aborting."
@@ -40,10 +40,17 @@ if [ "${target_version}" == "${source_version}" ]; then
   exit 0
 fi
 
-if [ -n "${PGDATA_TO}" ]; then
-  target_dir=${PGDATA_TO}
+pgdata_base=${PGDATA_BASE:-/var/lib/postgresql}
+
+if [ -n "${PGDATA_NEW}" ]; then
+  target_dir=${PGDATA_NEW}
 else
-  target_dir="${PGDATA_BASE:-/var/lib/postgresql}/${target_version}/docker"
+  target_dir="${pgdata_base}/${target_version}/docker"
+fi
+
+if [ "${CLEAN_NEW}" == "1" ]; then
+  echo Deleting ${target_dir}
+  rm -rf "${target_dir}"
 fi
 
 echo "Upgrading from ${source_dir} to ${target_dir}..."
@@ -51,21 +58,40 @@ echo "Upgrading from ${source_dir} to ${target_dir}..."
 mkdir -p "${target_dir}"
 source_bin_dir="/usr/local-pg${source_version}/bin"
 psql_bin=$(which psql)
-target_bin_dir=$(dirname ${psql_bin})
+
+binary_version=$(psql --version | awk '{print $3}' | cut -d. -f1)
+if [ "${binary_version}" == "${target_version}" ]; then
+  target_bin_dir=$(dirname ${psql_bin})
+else
+  target_bin_dir="/usr/local-pg${target_version}/bin"
+fi
+
+pg_user="${PGUSER:-postgres}"
 
 set -x
 
-initdb -D "${target_dir}" --no-data-checksums
+whoami
 
-cd "${PGDATA_BASE}"
-mkdir -m 700 /tmp/pg-upgrade-sockets
-
-pg_upgrade \
-  --link \
-  -b "${source_bin_dir}" \
-  -B "${target_bin_dir}" \
-  -d "${source_dir}" \
+initdb -U "${pg_user}" \
   -D "${target_dir}" \
-  --socketdir /tmp/pg-upgrade-sockets
+  --no-data-checksums
+
+chmod 700 "${source_dir}"
+ls -lahF "${pgdata_base}"
+
+mkdir -m 700 -p /tmp/pg-upgrade-sockets
+cd /tmp
+
+eval "pg_upgrade \
+  -U '${pg_user}' \
+  ${PGUPGRADE_OPTIONS} \
+  -b '${source_bin_dir}' \
+  -B '${target_bin_dir}' \
+  -d '${source_dir}' \
+  -D '${target_dir}' \
+  --socketdir /tmp/pg-upgrade-sockets" || {
+  cat ${target_dir}/pg_upgrade_output.d/*/log/pg_upgrade_server.log || true
+  exit 1
+}
 
 pg_checksums --enable -D "${target_dir}"
