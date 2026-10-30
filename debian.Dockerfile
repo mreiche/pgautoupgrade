@@ -56,12 +56,11 @@ COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
 # Install locale
 RUN apt update && \
-  apt install -y icu-devtools locales tzdata \
-  && sed -i 's/^# *en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
-  && locale-gen \
+  apt install -y icu-devtools locales-all tzdata \
   && locale -a \
   && apt clean
 
+ARG PGTARGET
 ENV PGTARGET=${PGTARGET}
 
 # Copy across all our shell scripts

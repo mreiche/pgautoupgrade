@@ -84,6 +84,6 @@ eval "${target_bin_dir}/pg_upgrade \
   exit 1
 }
 
-if [ ${target_version} ge 18 ]; then
+if [ "${target_version}" -ge 18 ]; then
   ${target_bin_dir}/pg_checksums --enable -D "${target_dir}"
 fi

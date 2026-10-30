@@ -8,6 +8,10 @@ on:
 #  schedule:
 #    - cron: "0 0 * * 0"
 
+concurrency:
+  group: build
+  cancel-in-progress: false
+
 env:
   REGISTRY: ghcr.io
   # renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose

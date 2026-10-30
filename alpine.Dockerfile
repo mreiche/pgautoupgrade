@@ -62,11 +62,10 @@ COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 # Install locale
 RUN apk update \
   && apk add --update icu-data-full musl musl-utils musl-locales tzdata \
-  && sed -i 's/^# *en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
-  && locale-gen \
   && locale -a \
   && apk cache clean
 
+ARG PGTARGET
 ENV PGTARGET=${PGTARGET}
 
 # Copy across all our shell scripts
