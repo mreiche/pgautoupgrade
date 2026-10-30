@@ -87,8 +87,8 @@ test_migration() {
     # Run the migration
     upgrade_name="${name}_pgautoupgrade"
     docker run \
-      --user "${postgres_uid}" \
       --rm \
+      -e PGUID="${postgres_uid}" \
       -e PGTARGET="${pg_target}" \
       -e PGDATA="/var/lib/postgresql/${save_from}" \
       -e PGDATA_BASE="/var/lib/postgresql" \

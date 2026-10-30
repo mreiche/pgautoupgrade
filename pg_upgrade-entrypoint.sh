@@ -49,6 +49,10 @@ if [ "${CLEAN_NEW}" = "1" ]; then
 fi
 
 echo "Upgrading from ${source_dir} to ${target_dir}..."
+
+pguid="${PGUID:-70}"
+echo "postgres:x:${pguid}:${pguid}:PostgreSQL:/tmp:/bin/sh" >> /etc/passwd
+
 mkdir -p "${target_dir}" || {
   echo "Failed creating ${target_dir}"
   ls -lahF "${pgdata_base}"
@@ -68,10 +72,11 @@ if [ "${target_version}" -ge 18 ]; then
   initdb_args="--no-data-checksum"
 fi
 
-eval "${target_bin_dir}/initdb \
-  -U '${pg_user}' \
-  -D '${target_dir}' \
-  ${initdb_args}"
+su -m postgres -s /bin/sh -c 'eval "${target_bin_dir}/initdb -U ${pg_user} -D ${target_dir} ${initdb_args}"'
+#eval "${target_bin_dir}/initdb \
+#  -U '${pg_user}' \
+#  -D '${target_dir}' \
+#  ${initdb_args}"
 
 eval "${target_bin_dir}/pg_upgrade \
   -U '${pg_user}' \
