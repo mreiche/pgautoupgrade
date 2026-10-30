@@ -68,6 +68,8 @@ set -x
 
 initdb -D "${target_dir}" --no-data-checksums
 
+ls -lahF "${PGDATA_BASE}"
+
 mkdir -m 700 -p /tmp/pg-upgrade-sockets
 cd /tmp
 
