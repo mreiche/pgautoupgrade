@@ -79,6 +79,10 @@ PGTARGET="18"         # Target PostgreSQL version (optional)
 The image tag `14-18.xxx` describes, which PostgreSQL versions are supported within the image.
 By default, the migration is performed to the highest version (18). If you want to migrate to a lower version, set `PGTARGET="17"`.
 
+I dropped support for PostgreSQL 13 and lower, since they are [end-of-life](https://endoflife.date/postgresql) for a while now.
+
+For older versions (from 9.5), use the older images `18.6-alpine3.24` or `18.6-debian13.7`.
+
 ## Debian vs Alpine based images
 
 The default official Docker PostgreSQL image is Debian Linux
