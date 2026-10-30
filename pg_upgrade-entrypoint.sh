@@ -54,7 +54,7 @@ echo "whoami: ${myuid}"
 
 # If the container runs as root and a PGUID is given
 # We need to change the uid of the pre-existing user "postgres" to this uid
-if [ -n "${PGUID}" && "${myuid}" -eq 0 ]; then
+if [ -n "${PGUID}" ] && [ "${myuid}" -eq 0 ]; then
   echo "Change uid of user postgres to: ${PGUID}"
   usermod -u "${PGUID}" postgres
 fi
