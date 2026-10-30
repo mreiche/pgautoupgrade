@@ -61,7 +61,7 @@ COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
 # Install locale
 RUN apk update \
-  && apk add --update icu-libs lz4-libs musl musl-utils musl-locales tzdata \
+  && apk add --update icu-libs lz4-libs musl musl-utils musl-locales tzdata shadow \
   && locale -a \
   && apk cache clean
 
@@ -70,9 +70,7 @@ ENV PGTARGET=${PGTARGET}
 
 # Copy across all our shell scripts
 WORKDIR /opt
-COPY pg_upgrade-entrypoint.sh /usr/local/bin
-
-USER guest
+COPY pg_upgrade-entrypoint.sh pg_upgrade.sh /usr/local/bin/
 
 # Set up the script run by the container when it starts
 ENTRYPOINT ["/usr/local/bin/pg_upgrade-entrypoint.sh"]

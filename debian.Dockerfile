@@ -54,9 +54,9 @@ COPY --from=build-16 /usr/local-pg16 /usr/local-pg16
 COPY --from=build-17 /usr/local-pg17 /usr/local-pg17
 COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
-# Install locale
+# Install locale and add suer
 RUN apt update && \
-  apt install -y icu-devtools locales-all tzdata \
+  apt install -y icu-devtools locales-all tzdata passwd \
   && locale -a \
   && apt clean
 
@@ -65,9 +65,7 @@ ENV PGTARGET=${PGTARGET}
 
 # Copy across all our shell scripts
 WORKDIR /opt
-COPY pg_upgrade-entrypoint.sh /usr/local/bin
-
-USER nobody
+COPY pg_upgrade-entrypoint.sh pg_upgrade.sh /usr/local/bin/
 
 # Set up the script run by the container when it starts
 ENTRYPOINT ["/usr/local/bin/pg_upgrade-entrypoint.sh"]

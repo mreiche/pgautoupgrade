@@ -1,4 +1,9 @@
+#!/usr/bin/env sh
+
+flavor=${FLAVOR:-alpine}
+
 docker build \
-  -f alpine.Dockerfile \
-  -t ghcr.io/mreiche/pgautoupgrade:latest \
+  -f ${flavor}.Dockerfile \
+  -t pgautoupgrade-${flavor}:latest \
    .
+
