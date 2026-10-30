@@ -46,6 +46,9 @@ test_migration() {
     docker stop "${name}" || true
     docker stop "${migration_name}" || true
 
+    # Pre pull the image
+    docker pull "postgres:${from}"
+
     # Initial data
     docker run \
       --rm \
