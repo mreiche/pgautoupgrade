@@ -42,13 +42,13 @@ fi
 
 pgdata_base=${PGDATA_BASE:-/var/lib/postgresql}
 
-if [ -n "${PGDATA_TO}" ]; then
-  target_dir=${PGDATA_TO}
+if [ -n "${PGDATA_NEW}" ]; then
+  target_dir=${PGDATA_NEW}
 else
   target_dir="${pgdata_base}/${target_version}/docker"
 fi
 
-if [ "${CLEAN_TARGET}" == "1" ]; then
+if [ "${CLEAN_NEW}" == "1" ]; then
   echo Deleting ${target_dir}
   rm -rf "${target_dir}"
 fi
@@ -85,15 +85,14 @@ cd /tmp
 pg_upgrade \
   -U "${pg_user}" \
   --link \
-  -o "${OLD_OPTIONS}" \
-  -O "${NEW_OPTIONS}" \
+  -o "${OPTIONS_OLD}" \
+  -O "${OPTIONS_NEW}" \
   -b "${source_bin_dir}" \
   -B "${target_bin_dir}" \
   -d "${source_dir}" \
   -D "${target_dir}" \
   --socketdir /tmp/pg-upgrade-sockets || {
   cat ${target_dir}/pg_upgrade_output.d/*/log/pg_upgrade_server.log || true
-  # sleep ${SLEEP_ON_ERROR:-10}
   exit 1
 }
 
