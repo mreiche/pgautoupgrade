@@ -55,8 +55,10 @@ cd /tmp
 
 chmod 700 "${source_dir}"
 
-# If the container runs as root and a PGUID is given
-# We need to change the uid of the pre-existing user "postgres" to this uid
+# If a PGUID is given
+# We assume that this container runs as root
+# We create a user "postgres" with this id
+# And run the migration as this user
 if [ -n "${PGUID}" ]; then
   echo "Create user postgres with uid: ${PGUID}"
   useradd -u "${PGUID}" -M -s /bin/sh postgres

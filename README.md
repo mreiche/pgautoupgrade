@@ -49,7 +49,7 @@ services:
     image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
     environment:
       PGDATA: /var/lib/postgresql/pgdata
-      PGUID: 70  # uid of the volume
+      PGUID: 70  # UID of the volume owner
     volumes:
       - pgdata:/var/lib/postgresql
   
@@ -68,6 +68,7 @@ volumes:
 ### Environment variables
 ```shell
 PGDATA=""             # Old PostgreSQL data
+PGUID="70"            # UID of the volume owner, container must run as root if set (optional)
 PGUSER="postgres"     # PostgreSQL superuser to use (optional)
 PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
