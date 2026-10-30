@@ -57,8 +57,16 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.operating_system.flavor }}
           cache-to: type=gha,scope=${{ matrix.operating_system.flavor }},mode=max
 
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+            /var/lib/apt/lists
+          key: apt-${{ runner.os }}-${{ hashFiles('.github/apt-packages.txt') }}
+
       - name: Install bats
-        shell: bash
+        shell: sh
         run: |
           sudo apt install -y bats
 
@@ -68,7 +76,7 @@ jobs:
           persist-credentials: false
 
       - name: Run tests
-        shell: bash
+        shell: sh
         env:
           FLAVOR: ${{ matrix.operating_system.flavor }}
         run: |
