@@ -77,7 +77,7 @@ test_migration() {
       -e PGDATA_BASE="/var/lib/postgresql" \
       --name "${upgrade_name}" \
       -v "$(pwd)/${base_data_dir}:/var/lib/postgresql" \
-      "ghcr.io/mreiche/pgautoupgrade:latest"
+      "${image}"
 
     # Test the migration
     docker run \
