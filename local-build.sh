@@ -1,4 +1,4 @@
 docker build \
-  -f debian.Dockerfile \
+  -f alpine.Dockerfile \
   -t ghcr.io/mreiche/pgautoupgrade:latest \
    .
