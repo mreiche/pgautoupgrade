@@ -16,13 +16,13 @@ Note: It does not start a PostgreSQL server nor does it clean up the old cluster
 
 ```shell
 docker run \
-    --rm \
-    -e PGDATA="/var/lib/postgresql/data" \
-    -v "/var/data/dir:/var/lib/postgresql" \
-    mreiche/pgautoupgrade:14-18.alpine3.24
+  --rm \
+  -e PGDATA="/var/lib/postgresql/data" \
+  -v "/var/data/dir:/var/lib/postgresql" \
+  mreiche/pgautoupgrade:14-18.alpine3.24
 ```
 
-### As init container
+### As Kubernets init container
 
 ```yaml
 initContainers:
@@ -39,6 +39,28 @@ initContainers:
     volumeMounts:
       - name: pgdata
         mountPath: /var/lib/postgresql
+```
+
+### As Docker compose
+```yaml
+services:
+  postgres-upgrade:
+    image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
+    environment:
+      PGDATA: /var/lib/postgresql/pgdata
+    volumes:
+      - pgdata:/var/lib/postgresql
+  
+  postgres:
+    image: postgres:18-alpine
+    depends_on:
+      postgres-upgrade:
+        condition: service_completed_successfully
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:
 ```
 
 ### Environment variables
