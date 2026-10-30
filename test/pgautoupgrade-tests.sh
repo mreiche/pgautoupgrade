@@ -72,7 +72,7 @@ test_migration() {
 
     if [ "${CI:-}" = "true" ]; then
       echo "CI: Change owner to ${postgres_uid}"
-    	sudo chown -R "${postgres_uid}" $(pwd)/${data_dir}
+    	sudo chown -R "${postgres_uid}" "${base_data_dir}"
     fi
 
     rand_int=$((RANDOM % 1000))
