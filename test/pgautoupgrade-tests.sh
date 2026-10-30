@@ -33,6 +33,7 @@ test_migration() {
     image=${3:-pgautoupgrade-${flavor}:latest}
 
     name="from_${from//-/_}_to_${to//-/_}"
+    pg_target=${to%%[^0-9]*}
     test_name="${name}_test"
 
     base_data_dir="pgdata"
@@ -68,8 +69,6 @@ test_migration() {
 
     if [ "${CI:-}" = "true" ]; then
       postgres_uid=$(docker exec "${name}" id -u postgres)
-      echo "CI: Change owner to ${postgres_uid}"
-    	sudo chown -R "${postgres_uid}" "${base_data_dir}"
     else
       postgres_uid=$(id -u)
     fi
@@ -81,9 +80,13 @@ test_migration() {
       sleep 1
     done
 
-    pg_target=${to%%[^0-9]*}
 
     echo "Run migration as: ${postgres_uid}"
+
+    if [ "${CI:-}" = "true" ]; then
+      echo "CI: Change owner of ${base_data_dir} to: ${postgres_uid}"
+      sudo chown -R "${postgres_uid}" "${base_data_dir}"
+    fi
 
     # Run the migration
     upgrade_name="${name}_pgautoupgrade"

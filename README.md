@@ -17,7 +17,7 @@ Note: It does not start a PostgreSQL server nor does it clean up the old cluster
 ```shell
 docker run \
   --rm \
-  --user "${POSTGRES_UID:-70}" \
+  --user "${PGUID:-70}" \
   -e PGDATA="/var/lib/postgresql/data" \
   -v "/var/data/dir:/var/lib/postgresql" \
   mreiche/pgautoupgrade:14-18.alpine3.24
@@ -42,14 +42,14 @@ initContainers:
         mountPath: /var/lib/postgresql
 ```
 
-### As Docker compose (WIP)
+### As Docker Compose
 ```yaml
 services:
   postgres-upgrade:
     image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
-    user: 70  # UserID of the volume
     environment:
       PGDATA: /var/lib/postgresql/pgdata
+      PGUID: 70  # uid of the volume
     volumes:
       - pgdata:/var/lib/postgresql
   
