@@ -70,14 +70,18 @@ initdb -D "${target_dir}" --no-data-checksums
 
 mkdir -m 700 -p /tmp/pg-upgrade-sockets
 cd /tmp
+chown -R 0750 "${source_dir}"
 
 pg_upgrade \
   --verbose \
   --link \
+  --retain \
   -b "${source_bin_dir}" \
   -B "${target_bin_dir}" \
   -d "${source_dir}" \
   -D "${target_dir}" \
-  --socketdir /tmp/pg-upgrade-sockets
+  --socketdir /tmp/pg-upgrade-sockets || {
+  cat "${target_dir}/pg_upgrade_output.d/*/log/pg_upgrade_server.log"
+}
 
 pg_checksums --enable -D "${target_dir}"
