@@ -51,6 +51,10 @@ PGUPGRADE_OPTIONS=""  # Additional options for pg_upgrade (optional)
 CLEAN_NEW="0"         # Deletes the new PostgreSQL data (optional)
 ```
 
+## Supported PostgreSQL versions
+
+Only upgrades to the newest PostgreSQL version (18) are supported right now.
+
 ## Debian vs Alpine based images
 
 The default official Docker PostgreSQL image is Debian Linux

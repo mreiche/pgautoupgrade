@@ -1,17 +1,15 @@
 name: Check GitHub Actions with Zizmor
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "**" ]
+    branches: [ "main" ]
 
 permissions: {}
 
 jobs:
   zizmor:
     name: Run zizmor 🌈
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       security-events: write # Required for upload-sarif (used by zizmor-action) to upload SARIF files.
 
