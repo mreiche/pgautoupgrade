@@ -67,7 +67,6 @@ else
 fi
 
 pg_user="${PGUSER:-postgres}"
-eval "pg_upgrade_args=(${PGUPGRADE_OPTIONS})"
 
 set -x
 
@@ -83,14 +82,14 @@ ls -lahF "${pgdata_base}"
 mkdir -m 700 -p /tmp/pg-upgrade-sockets
 cd /tmp
 
-pg_upgrade \
-  -U "${pg_user}" \
-  "${pg_upgrade_args[@]}" \
-  -b "${source_bin_dir}" \
-  -B "${target_bin_dir}" \
-  -d "${source_dir}" \
-  -D "${target_dir}" \
-  --socketdir /tmp/pg-upgrade-sockets || {
+eval "pg_upgrade \
+  -U '${pg_user}' \
+  ${PGUPGRADE_OPTIONS} \
+  -b '${source_bin_dir}' \
+  -B '${target_bin_dir}' \
+  -d '${source_dir}' \
+  -D '${target_dir}' \
+  --socketdir /tmp/pg-upgrade-sockets" || {
   cat ${target_dir}/pg_upgrade_output.d/*/log/pg_upgrade_server.log || true
   exit 1
 }
