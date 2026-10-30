@@ -72,8 +72,8 @@ jobs:
         env:
           FLAVOR: ${{ matrix.operating_system.flavor }}
         run: |
-          sh ./test/pg_upgrade-entrypoint-tests.sh
-          sh ./test/pgautoupgrade-tests.sh
+          /usr/bin/env bats ./test/pg_upgrade-entrypoint-tests.sh
+          /usr/bin/env bats ./test/pgautoupgrade-tests.sh
 
       - name: Login to Docker Hub
         if: ${{ github.event_name != 'pull_request' }}
