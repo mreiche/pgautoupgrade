@@ -32,10 +32,11 @@ test_migration() {
     to=$2
     image=${3:-pgautoupgrade-${flavor}:latest}
 
-    save_from=${from//-/_}
+    name="from_${from//-/_}_to_${to//-/_}"
+    test_name="${name}_test"
 
     base_data_dir="pgdata"
-    data_dir="${base_data_dir}/${save_from}"
+    data_dir="${base_data_dir}/${name}"
 
     if [ -e "${base_data_dir}" ]; then
       if [ "${CI:-}" = "true" ]; then
@@ -48,11 +49,8 @@ test_migration() {
 
     mkdir -p "${data_dir}"
 
-    name="postgres_${save_from}"
-    migration_name="${name}_migrated"
-
     docker stop "${name}" || true
-    docker stop "${migration_name}" || true
+    docker stop "${test_name}" || true
 
     # Pre pull the image
     docker pull "postgres:${from}"
@@ -93,7 +91,7 @@ test_migration() {
       --rm \
       -e PGUID="${postgres_uid}" \
       -e PGTARGET="${pg_target}" \
-      -e PGDATA="/var/lib/postgresql/${save_from}" \
+      -e PGDATA="/var/lib/postgresql/${name}" \
       -e PGDATA_BASE="/var/lib/postgresql" \
       -e PGUPGRADE_OPTIONS="-o '-c wal_level=logical'" \
       --name "${upgrade_name}" \
@@ -106,16 +104,16 @@ test_migration() {
       --detach \
       -e PGDATA="/var/lib/postgresql/${pg_target}/docker" \
       -e POSTGRES_PASSWORD=secret \
-      --name "${migration_name}" \
+      --name "${test_name}" \
       -v "$(pwd)/${base_data_dir}:/var/lib/postgresql" \
       "postgres:${to}"
 
-    retry "docker exec ${migration_name} pg_isready"
+    retry "docker exec ${test_name} pg_isready"
 
-    get_int=$(docker exec "${migration_name}" psql -U postgres -t -A -c "SELECT id FROM test LIMIT 1;")
+    get_int=$(docker exec "${test_name}" psql -U postgres -t -A -c "SELECT id FROM test LIMIT 1;")
     test "${get_int}" -eq "${rand_int}"
 
-    docker stop "${migration_name}"
+    docker stop "${test_name}"
 }
 
 @test "From 14 to 18 (${flavor})" {
