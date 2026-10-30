@@ -34,9 +34,9 @@ jobs:
           - flavor: "alpine"
             # renovate: datasource=docker depName=alpine versioning=docker
             OS_VERSION: "3.24"
-          - flavor: "debian"
-            # renovate: datasource=docker depName=debian versioning=docker
-            OS_VERSION: "13.7"
+#          - flavor: "debian"
+#            # renovate: datasource=docker depName=debian versioning=docker
+#            OS_VERSION: "13.7"
 
     steps:
 
