@@ -48,12 +48,18 @@ fi
 
 echo "Upgrading from ${source_dir} to ${target_dir}..."
 
-pguid="${PGUID:-70}"
+if [ -n "${PGUID}" ]; then
+  pguid="${PGUID}"
+else
+  pguid=$(id -u)
+fi
+
+echo "Create user postgres with uid: ${pguid}"
 echo "postgres:x:${pguid}:${pguid}:PostgreSQL:/tmp:/bin/sh" >> /etc/passwd
 
-mkdir -p "${target_dir}" || {
+su -m postgres -s /bin-sh "mkdir -p ${target_dir}" || {
   echo "Failed creating ${target_dir}"
-  ls -lahF "${pgdata_base}"
+  ls -lahF "${pgdata_base}" || true
   echo whoami: $(id -u)
 }
 
