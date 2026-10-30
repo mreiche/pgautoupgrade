@@ -30,7 +30,7 @@ setup() {
 test_migration() {
     from=$1
     to=$2
-    image=${3:-ghcr.io/mreiche/pgautoupgrade:${flavor}:latest}
+    image=${3:-pgautoupgrade-${flavor}:latest}
 
     save_from=${from//-/_}
 

@@ -51,7 +51,7 @@ jobs:
         with:
           file: "${{ matrix.operating_system.flavor }}.Dockerfile"
           load: true
-          tags: ${{ matrix.operating_system.flavor }}:latest
+          tags: pgautoupgrade-${{ matrix.operating_system.flavor }}:latest
           build-args: |
             "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
           cache-from: type=gha,scope=${{ matrix.operating_system.flavor }}
