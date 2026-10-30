@@ -57,7 +57,7 @@ fi
 echo "Create user postgres with uid: ${pguid}"
 echo "postgres:x:${pguid}:${pguid}:PostgreSQL:/tmp:/bin/sh" >> /etc/passwd
 
-su -m postgres -s /bin/sh "mkdir -p ${target_dir}" || {
+su -m postgres -s /bin/sh -c "mkdir -p ${target_dir}" || {
   echo "Failed creating ${target_dir}"
   ls -lahF "${pgdata_base}" || true
   echo whoami: $(id -u)
@@ -67,7 +67,8 @@ source_bin_dir="/usr/local-pg${source_version}/bin"
 target_bin_dir="/usr/local-pg${target_version}/bin"
 pg_user="${PGUSER:-postgres}"
 
-mkdir -m 700 -p /tmp/pg-upgrade-sockets
+# Create world writable socket dir
+mkdir -m 777 -p /tmp/pg-upgrade-sockets
 cd /tmp
 
 set -x
@@ -78,13 +79,12 @@ if [ "${target_version}" -ge 18 ]; then
   initdb_args="--no-data-checksum"
 fi
 
-su -m postgres -s /bin/sh -c "${target_bin_dir}/initdb -U ${pg_user} -D ${target_dir} ${initdb_args}"
-#eval "${target_bin_dir}/initdb \
-#  -U '${pg_user}' \
-#  -D '${target_dir}' \
-#  ${initdb_args}"
+su -m postgres -s /bin/sh -c "${target_bin_dir}/initdb \
+  -U '${pg_user}' \
+  -D '${target_dir}' \
+  ${initdb_args}"
 
-eval "${target_bin_dir}/pg_upgrade \
+su -m postgres -s /bin/sh -c "${target_bin_dir}/pg_upgrade \
   -U '${pg_user}' \
   ${PGUPGRADE_OPTIONS} \
   -b '${source_bin_dir}' \
@@ -97,5 +97,5 @@ eval "${target_bin_dir}/pg_upgrade \
 }
 
 if [ "${target_version}" -ge 18 ]; then
-  ${target_bin_dir}/pg_checksums --enable -D "${target_dir}"
+  su -m postgres -s /bin/sh -c "${target_bin_dir}/pg_checksums --enable -D '${target_dir}'"
 fi

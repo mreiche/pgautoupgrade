@@ -68,11 +68,12 @@ test_migration() {
 
     retry "docker exec ${name} pg_isready"
 
-    postgres_uid=$(docker exec "${name}" id -u postgres)
-
     if [ "${CI:-}" = "true" ]; then
+      postgres_uid=$(docker exec "${name}" id -u postgres)
       echo "CI: Change owner to ${postgres_uid}"
     	sudo chown -R "${postgres_uid}" "${base_data_dir}"
+    else
+      postgres_uid=$(id -u)
     fi
 
     rand_int=$((RANDOM % 1000))
@@ -84,6 +85,8 @@ test_migration() {
 
     pg_target=${to%%[^0-9]*}
 
+    echo "Run migration as: ${postgres_uid}"
+
     # Run the migration
     upgrade_name="${name}_pgautoupgrade"
     docker run \
@@ -92,6 +95,7 @@ test_migration() {
       -e PGTARGET="${pg_target}" \
       -e PGDATA="/var/lib/postgresql/${save_from}" \
       -e PGDATA_BASE="/var/lib/postgresql" \
+      -e PGUPGRADE_OPTIONS="-o '-c wal_level=logical'" \
       --name "${upgrade_name}" \
       -v "$(pwd)/${base_data_dir}:/var/lib/postgresql" \
       "${image}"
