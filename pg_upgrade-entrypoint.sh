@@ -72,6 +72,7 @@ mkdir -m 700 -p /tmp/pg-upgrade-sockets
 cd /tmp
 
 pg_upgrade \
+  --verbose \
   --link \
   -b "${source_bin_dir}" \
   -B "${target_bin_dir}" \
