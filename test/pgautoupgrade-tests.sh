@@ -51,6 +51,7 @@ test_migration() {
 
     # Initial data
     docker run \
+      --user "$(id -u):$(id -g)" \
       --rm \
       --detach \
       -e POSTGRES_PASSWORD=secret \
