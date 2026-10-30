@@ -58,10 +58,10 @@ source_bin_dir="/usr/local-pg${source_version}/bin"
 psql_bin=$(which psql)
 
 binary_version=$(psql --version | awk '{print $3}' | cut -d. -f1)
-if [ "${binary_version}" == "${PGTARGET}" ]; then
+if [ "${binary_version}" == "${target_version}" ]; then
   target_bin_dir=$(dirname ${psql_bin})
 else
-  target_bin_dir="/usr/local-pg${PGTARGET}/bin"
+  target_bin_dir="/usr/local-pg${target_version}/bin"
 fi
 
 set -x
