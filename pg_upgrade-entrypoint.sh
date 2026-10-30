@@ -40,10 +40,12 @@ if [ "${target_version}" == "${source_version}" ]; then
   exit 0
 fi
 
+pgdata_base=${PGDATA_BASE:-/var/lib/postgresql}
+
 if [ -n "${PGDATA_TO}" ]; then
   target_dir=${PGDATA_TO}
 else
-  target_dir="${PGDATA_BASE:-/var/lib/postgresql}/${target_version}/docker"
+  target_dir="${pgdata_base}/${target_version}/docker"
 fi
 
 if [ "${CLEAN_TARGET}" == "1" ]; then
@@ -68,7 +70,7 @@ set -x
 
 initdb -D "${target_dir}" --no-data-checksums
 
-ls -lahF "${PGDATA_BASE}"
+ls -lahF "${pgdata_base}"
 
 mkdir -m 700 -p /tmp/pg-upgrade-sockets
 cd /tmp
