@@ -67,7 +67,7 @@ ENV PGTARGET=${PGTARGET}
 WORKDIR /opt
 COPY pg_upgrade-entrypoint.sh /usr/local/bin
 
-USER nobody
+#USER nobody
 
 # Set up the script run by the container when it starts
 ENTRYPOINT ["/usr/local/bin/pg_upgrade-entrypoint.sh"]
