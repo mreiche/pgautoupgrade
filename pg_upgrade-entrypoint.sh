@@ -66,9 +66,16 @@ else
   target_bin_dir="/usr/local-pg${target_version}/bin"
 fi
 
+pg_user="${PGUSER:-postgres}"
+
 set -x
 
-initdb -D "${target_dir}" --no-data-checksums
+whoami
+
+initdb -U "${pg_user}" \
+  -D "${target_dir}" \
+  --no-data-checksums
+
 chmod 700 "${source_dir}"
 ls -lahF "${pgdata_base}"
 
@@ -76,7 +83,7 @@ mkdir -m 700 -p /tmp/pg-upgrade-sockets
 cd /tmp
 
 pg_upgrade \
-  -U ${PGUSER:-postgres} \
+  -U "${pg_user}" \
   --link \
   -o "${OLD_OPTIONS}" \
   -O "${NEW_OPTIONS}" \
