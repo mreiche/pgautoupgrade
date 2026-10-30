@@ -76,6 +76,7 @@ mkdir -m 700 -p /tmp/pg-upgrade-sockets
 cd /tmp
 
 pg_upgrade \
+  -U ${PGUSER:-postgres} \
   --link \
   -o "${OLD_OPTIONS}" \
   -O "${NEW_OPTIONS}" \
@@ -85,7 +86,7 @@ pg_upgrade \
   -D "${target_dir}" \
   --socketdir /tmp/pg-upgrade-sockets || {
   cat ${target_dir}/pg_upgrade_output.d/*/log/pg_upgrade_server.log || true
-  sleep ${SLEEP_ON_ERROR:-10}
+  # sleep ${SLEEP_ON_ERROR:-10}
   exit 1
 }
 
