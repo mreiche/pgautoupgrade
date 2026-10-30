@@ -70,7 +70,6 @@ initdb -D "${target_dir}" --no-data-checksums
 
 mkdir -m 700 -p /tmp/pg-upgrade-sockets
 cd /tmp
-chown -R 0750 "${source_dir}"
 
 pg_upgrade \
   --verbose \
