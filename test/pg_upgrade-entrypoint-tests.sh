@@ -33,7 +33,7 @@
     PGTARGET="17" \
     "../pg_upgrade-entrypoint.sh"
   [[ "$output" =~ "Upgrading from lib/postgresql/data to lib/postgresql/17/docker" ]]
-  [[ "$output" =~ "pg_upgrade --link -b /usr/local-pg14/bin -B /usr/local-pg17/bin" ]]
+  [[ "$output" =~ "/usr/local-pg17/bin/initdb -U postgres -D lib/postgresql/17/docker" ]]
 }
 
 @test "15 to 18" {
@@ -57,7 +57,7 @@
 
   run env \
     PGDATA="${pgdata}" \
-    PGDATA_TO="lib/postgresql/to" \
+    PGDATA_NEW="lib/postgresql/to" \
     PGTARGET="18" \
     "../pg_upgrade-entrypoint.sh"
   [[ "$output" =~ "Upgrading from lib/postgresql/from to lib/postgresql/to" ]]

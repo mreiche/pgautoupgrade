@@ -1,11 +1,11 @@
-# pgautoupgrade-simple
+# pgautoupgrade
 
 This is a PostgreSQL Docker image to automatically upgrade
 your database.
 
 It is a much simpler and flexible implementation inspired/forked by [pgautoupgrade/docker-pgautoupgrade](https://github.com/pgautoupgrade/docker-pgautoupgrade)
 
-Its whole purpose in life is to automatically detect the
+Its whole purpose is to automatically detect the
 version of PostgreSQL used in the existing PostgreSQL data
 directory, then automatically upgrade it (if needed) to the
 required version of PostgreSQL using `pg_upgrade`.
@@ -16,18 +16,18 @@ Note: It does not start a PostgreSQL server nor does it clean up the old cluster
 
 ```shell
 docker run \
-    --rm \
-    -e PGDATA="/var/lib/postgresql/data" \
-    -v "/var/data/dir:/var/lib/postgresql" \
-    mreiche/pgautoupgrade:18.6-alpine3.24
+  --rm \
+  -e PGDATA="/var/lib/postgresql/data" \
+  -v "/var/data/dir:/var/lib/postgresql" \
+  mreiche/pgautoupgrade:14-18.alpine3.24
 ```
 
-### As init container
+### As Kubernets init container
 
 ```yaml
 initContainers:
   - name: postgres-upgrade
-    image: ghcr.io/mreiche/pgautoupgrade:18.6-alpine3.24
+    image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
     securityContext: {}  # Pass your security context here
     env:
       - name: PGDATA
@@ -41,6 +41,28 @@ initContainers:
         mountPath: /var/lib/postgresql
 ```
 
+### As Docker compose
+```yaml
+services:
+  postgres-upgrade:
+    image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
+    environment:
+      PGDATA: /var/lib/postgresql/pgdata
+    volumes:
+      - pgdata:/var/lib/postgresql
+  
+  postgres:
+    image: postgres:18-alpine
+    depends_on:
+      postgres-upgrade:
+        condition: service_completed_successfully
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:
+```
+
 ### Environment variables
 ```shell
 PGDATA=""             # Old PostgreSQL data
@@ -49,11 +71,17 @@ PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
 PGUPGRADE_OPTIONS=""  # Additional options for pg_upgrade (optional)
 CLEAN_NEW="0"         # Deletes the new PostgreSQL data (optional)
+PGTARGET="18"         # Target PostgreSQL version (optional)
 ```
 
-## Supported PostgreSQL versions
+### Supported PostgreSQL versions
 
-Only upgrades to the newest PostgreSQL version (18) are supported right now.
+The image tag `14-18.xxx` describes, which PostgreSQL versions are supported within the image.
+By default, the migration is performed to the highest version (18). If you want to migrate to a lower version, set `PGTARGET="17"`.
+
+I dropped support for PostgreSQL 13 and lower, since they are [end-of-life](https://endoflife.date/postgresql) for a while now.
+
+For older versions (from 9.5), use the older images `18.6-alpine3.24` or `18.6-debian13.7`.
 
 ## Debian vs Alpine based images
 
@@ -66,7 +94,7 @@ To solve that problem, we have Debian based images available as well.
 To use either of those, choose the version of PostgreSQL you'd
 like to upgrade to, then change your docker image to match:
 
-    ghcr.io/mreiche/pgautoupgrade:18.6-debian13.7
+    ghcr.io/mreiche/pgautoupgrade:14-18.debian13.7
 
 ## Troubleshooting
 

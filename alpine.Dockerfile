@@ -1,205 +1,78 @@
-# renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
-ARG PGTARGET=18.0
-
 # renovate: datasource=docker depName=alpine versioning=loose
 ARG ALPINE_VERSION=3.24
 
 ### Things we need in all build containers
 FROM alpine:${ALPINE_VERSION} AS base-build
 
-# The versions of PostgreSQL to use
-ENV PG95=9.5.25
-ENV PG96=9.6.24
-ENV PG10=10.23
-ENV PG11=11.22
-ENV PG12=12.22
-ENV PG13=13.23
-
-# renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
-ENV PG14_VERSION=14.24
-
-# renovate: datasource=repology depName=homebrew/postgresql@15 versioning=loose
-ENV PG15_VERSION=15.19
-
-# renovate: datasource=repology depName=homebrew/postgresql@16 versioning=loose
-ENV PG16_VERSION=16.15
-
-# renovate: datasource=repology depName=homebrew/postgresql@17 versioning=loose
-ENV PG17_VERSION=17.11
-
 # Where we'll do all our compiling and similar
 ENV BUILD_ROOT=/buildroot
+ENV BUILD_TARGET="world-bin"
+ENV INSTALL_TARGET="install-world-bin"
 
 # Make the directory for building, and set it as the default for the following Docker commands
-RUN mkdir ${BUILD_ROOT}
+COPY ./build-postgres.sh /usr/local/bin
+RUN mkdir ${BUILD_ROOT} \
+    && chmod +x /usr/local/bin/*
+
 WORKDIR ${BUILD_ROOT}
 
 # Install things needed for development
 # We might want to install "alpine-sdk" instead of "build-base", if build-base
 # doesn't have everything we need
-RUN apk update && \
-  apk add --update build-base icu-data-full icu-dev linux-headers lz4-dev musl musl-locales musl-utils tzdata zlib-dev zstd-dev && \
-  apk cache clean
+RUN apk update \
+  && apk add --update curl build-base icu-data-full icu-dev linux-headers lz4-dev musl musl-locales musl-utils tzdata zlib-dev zstd-dev bison flex perl \
+  && apk cache clean
 
-### PostgreSQL 9.5
-FROM base-build AS build-9.5
 
-RUN wget https://ftp.postgresql.org/pub/source/v${PG95}/postgresql-${PG95}.tar.bz2 && \
-  tar -xf postgresql-9.5*.tar.bz2
-
-RUN cd postgresql-9.5.* && \
-  ./configure --prefix=/usr/local-pg9.5 --with-openssl=no --without-readline --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os -std=gnu17" && \
-  make -j $(nproc) world && \
-  make install-world && \
-  rm -rf /usr/local-pg9.5/include
-
-### PostgreSQL 9.6
-FROM base-build AS build-9.6
-
-RUN wget https://ftp.postgresql.org/pub/source/v${PG96}/postgresql-${PG96}.tar.bz2 && \
-  tar -xf postgresql-9.6*.tar.bz2
-
-RUN cd postgresql-9.6.* && \
-  ./configure --prefix=/usr/local-pg9.6 --with-openssl=no --without-readline --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os -std=gnu17" && \
-  make -j $(nproc) world-bin && \
-  make install-world-bin && \
-  rm -rf /usr/local-pg9.6/include
-
-### PostgreSQL 10
-FROM base-build AS build-10
-RUN wget https://ftp.postgresql.org/pub/source/v${PG10}/postgresql-${PG10}.tar.bz2 && \
-  tar -xf postgresql-10*.tar.bz2
-
-RUN cd postgresql-10.* && \
-  ./configure --prefix=/usr/local-pg10 --with-openssl=no --without-readline --with-icu --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os -std=gnu17" && \
-  make -j $(nproc) world-bin && \
-  make install-world-bin && \
-  rm -rf /usr/local-pg10/include
-
-### PostgreSQL 11
-FROM base-build AS build-11
-RUN wget https://ftp.postgresql.org/pub/source/v${PG11}/postgresql-${PG11}.tar.bz2 && \
-  tar -xf postgresql-11*.tar.bz2
-
-RUN cd postgresql-11.* && \
-  ./configure --prefix=/usr/local-pg11 --with-openssl=no --without-readline --with-icu --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os -std=gnu17" && \
-  make -j $(nproc) world-bin && \
-  make install-world-bin && \
-  rm -rf /usr/local-pg11/include
-
-### PostgreSQL 12
-FROM base-build AS build-12
-RUN wget https://ftp.postgresql.org/pub/source/v${PG12}/postgresql-${PG12}.tar.bz2 && \
-  tar -xf postgresql-12*.tar.bz2
-
-RUN cd postgresql-12.* && \
-  ./configure --prefix=/usr/local-pg12 --with-openssl=no --without-readline --with-icu --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os -std=gnu17" && \
-  make -j $(nproc) world-bin && \
-  make install-world-bin && \
-  rm -rf /usr/local-pg12/include
-
-### PostgreSQL 13
-FROM base-build AS build-13
-
-RUN wget https://ftp.postgresql.org/pub/source/v${PG13}/postgresql-${PG13}.tar.bz2 && \
-  tar -xf postgresql-13*.tar.bz2
-
-RUN cd postgresql-13.* && \
-  ./configure --prefix=/usr/local-pg13 --with-openssl=no --without-readline --with-icu --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os" && \
-  make -j $(nproc) world-bin && \
-  make install-world-bin && \
-  rm -rf /usr/local-pg13/include
-
-### PostgreSQL 14
 FROM base-build AS build-14
+## renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
+ENV PGVERSION="14.24"
+RUN /usr/local/bin/build-postgres.sh
 
-RUN wget https://ftp.postgresql.org/pub/source/v${PG14_VERSION}/postgresql-${PG14_VERSION}.tar.bz2 && \
-  tar -xf postgresql-14*.tar.bz2
-
-RUN cd postgresql-14.* && \
-  ./configure --prefix=/usr/local-pg14 --with-openssl=no --without-readline --with-icu --with-lz4 --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os" && \
-  make -j $(nproc) world-bin && \
-  make install-world-bin && \
-  rm -rf /usr/local-pg14/include
-
-### PostgreSQL 15
 FROM base-build AS build-15
+## renovate: datasource=repology depName=homebrew/postgresql@15 versioning=loose
+ENV PGVERSION=15.19
+RUN /usr/local/bin/build-postgres.sh
 
-RUN wget https://ftp.postgresql.org/pub/source/v${PG15_VERSION}/postgresql-${PG15_VERSION}.tar.bz2 && \
-  tar -xf postgresql-15*.tar.bz2
-
-RUN cd postgresql-15.* && \
-  ./configure --prefix=/usr/local-pg15 --with-openssl=no --without-readline --with-icu --with-lz4 --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os" && \
-  make -j $(nproc) world-bin && \
-  make install-world-bin && \
-  rm -rf /usr/local-pg15/include
-
-### PostgreSQL 16
 FROM base-build AS build-16
+## renovate: datasource=repology depName=homebrew/postgresql@16 versioning=loose
+ENV PGVERSION=16.15
+RUN /usr/local/bin/build-postgres.sh
 
-RUN wget https://ftp.postgresql.org/pub/source/v${PG16_VERSION}/postgresql-${PG16_VERSION}.tar.gz && \
-  tar -xf postgresql-16*.tar.gz
-
-RUN cd postgresql-16.* && \
-  ./configure --prefix=/usr/local-pg16 --with-openssl=no --without-readline --with-icu --with-lz4 --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os" && \
-  make -j $(nproc) world-bin && \
-  make install-world-bin && \
-  rm -rf /usr/local-pg16/include
-
-### PostgreSQL 17
 FROM base-build AS build-17
+## renovate: datasource=repology depName=homebrew/postgresql@17 versioning=loose
+ENV PGVERSION=17.11
+RUN /usr/local/bin/build-postgres.sh
 
-RUN apk add --no-cache bison flex perl
-
-RUN wget https://ftp.postgresql.org/pub/source/v${PG17_VERSION}/postgresql-${PG17_VERSION}.tar.gz && \
-  tar -xf postgresql-17*.tar.gz
-
-RUN cd postgresql-17.* && \
-  ./configure --prefix=/usr/local-pg17 --with-openssl=no --without-readline --with-icu --with-lz4 --with-system-tzdata=/usr/share/zoneinfo --enable-debug=no CFLAGS="-Os" && \
-  make -j $(nproc) world-bin && \
-  make install-world-bin && \
-  rm -rf /usr/local-pg17/include
+FROM base-build AS build-18
+## renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
+ENV PGVERSION=18.6
+RUN /usr/local/bin/build-postgres.sh
 
 # Use the PostgreSQL Alpine image as our output image base
-FROM postgres:${PGTARGET}-alpine${ALPINE_VERSION}
-
-# We need to define this here, to make the above PGTARGET available after the FROM
-ARG PGTARGET
+FROM alpine:${ALPINE_VERSION}
 
 # Copy across our compiled files
-COPY --from=build-9.5 /usr/local-pg9.5 /usr/local-pg9.5
-COPY --from=build-9.6 /usr/local-pg9.6 /usr/local-pg9.6
-COPY --from=build-10 /usr/local-pg10 /usr/local-pg10
-COPY --from=build-11 /usr/local-pg11 /usr/local-pg11
-COPY --from=build-12 /usr/local-pg12 /usr/local-pg12
-COPY --from=build-13 /usr/local-pg13 /usr/local-pg13
 COPY --from=build-14 /usr/local-pg14 /usr/local-pg14
 COPY --from=build-15 /usr/local-pg15 /usr/local-pg15
 COPY --from=build-16 /usr/local-pg16 /usr/local-pg16
 COPY --from=build-17 /usr/local-pg17 /usr/local-pg17
-
-# Remove any left over PG directory stubs.  Doesn't help with image size, just with clarity on what's in the image.
-RUN if [ "${PGTARGET}" == "${PG14_VERSION}" ]; then rm -rf /usr/local-pg14 /usr/local-pg15 /usr/local-pg16 /usr/local-pg17; fi
-RUN if [ "${PGTARGET}" == "${PG15_VERSION}" ]; then rm -rf /usr/local-pg15 /usr/local-pg16 /usr/local-pg17; fi
-RUN if [ "${PGTARGET}" == "${PG16_VERSION}" ]; then rm -rf /usr/local-pg16 /usr/local-pg17; fi
-RUN if [ "${PGTARGET}" == "${PG17_VERSION}" ]; then rm -rf /usr/local-pg17; fi
+COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
 # Install locale
-RUN apk update && \
-  apk add --update icu-data-full musl musl-utils musl-locales tzdata && \
-  apk cache clean
+RUN apk update \
+  && apk add --update icu-libs lz4-libs musl musl-utils musl-locales tzdata \
+  && locale -a \
+  && apk cache clean
 
-## FIXME: Only useful while developing this Dockerfile
-##RUN apk add man-db man-pages-posix
-
-# Pass the PG build target through to the running image
+ARG PGTARGET
 ENV PGTARGET=${PGTARGET}
 
 # Copy across all our shell scripts
-WORKDIR /usr/local/bin
+WORKDIR /opt
 COPY pg_upgrade-entrypoint.sh /usr/local/bin
 
-USER postgres
+USER guest
 
 # Set up the script run by the container when it starts
 ENTRYPOINT ["/usr/local/bin/pg_upgrade-entrypoint.sh"]

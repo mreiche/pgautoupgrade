@@ -8,8 +8,16 @@ on:
 #  schedule:
 #    - cron: "0 0 * * 0"
 
+concurrency:
+  group: build
+  cancel-in-progress: false
+
 env:
   REGISTRY: ghcr.io
+  # renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
+  PG_FROM: "14"
+  # renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
+  PG_TO: "18"
 
 permissions:
   packages: write
@@ -43,22 +51,9 @@ jobs:
           - flavor: "alpine"
             # renovate: datasource=docker depName=alpine versioning=docker
             OS_VERSION: "3.24"
-            alias: "alpine"
           - flavor: "debian"
             # renovate: datasource=docker depName=debian versioning=docker
             OS_VERSION: "13.7"
-            alias: "debian"
-        pg_target:
-#          - # renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
-#            PG_VERSION: "14.24"
-#          - # renovate: datasource=repology depName=homebrew/postgresql@15 versioning=loose
-#            PG_VERSION: "15.19"
-#          - # renovate: datasource=repology depName=homebrew/postgresql@16 versioning=loose
-#            PG_VERSION: "16.15"
-#          - # renovate: datasource=repology depName=homebrew/postgresql@17 versioning=loose
-#            PG_VERSION: "17.11"
-          - # renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
-            PG_VERSION: "18.6"
 
     steps:
       - name: Set up QEMU
@@ -79,17 +74,8 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
-          flavor: |
-            latest=false
-          # add a .0 to each Postgres version so it is compliant with semantic version
-          # note that the .0 never ends up on an actual tag
           tags: |
-            type=semver,pattern={{major}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}
-            type=semver,pattern={{major}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
-            type=semver,pattern={{major}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.alias }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.alias }}
+            ${{ env.PG_FROM }}-${{ env.PG_TO }}.${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
 
 #      - name: Build image for test
 #        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
@@ -116,7 +102,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            "PGTARGET=${{ matrix.pg_target.PG_VERSION }}"
+            "PGTARGET=${{ env.PG_TO }}"
           push: true
           cache-from: type=gha,scope=${{ matrix.operating_system.flavor }}
           cache-to: type=gha,scope=${{ matrix.operating_system.flavor }},mode=max
