@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+export flavor=${FLAVOR:-alpine}
+
 retry() {
 	local command="$@"
 	local max_wait="${2:-60}"
@@ -27,7 +29,7 @@ setup() {
 test_migration() {
     from=$1
     to=$2
-    image=${3:-ghcr.io/mreiche/pgautoupgrade:latest}
+    image=${3:-ghcr.io/mreiche/pgautoupgrade:${flavor}:latest}
 
     save_from=${from//-/_}
 
@@ -91,11 +93,11 @@ test_migration() {
     docker stop "${migration_name}"
 }
 
-@test "From 14 to 18" {
+@test "From 14 to 18 (${flavor})" {
   test_migration "14-alpine" "18-alpine"
 }
 
-@test "From 14 to 17" {
+@test "From 14 to 17 (${flavor})" {
   test_migration "14-alpine" "17-alpine"
 }
 
