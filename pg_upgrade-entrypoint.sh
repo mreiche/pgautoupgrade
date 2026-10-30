@@ -41,7 +41,6 @@ if [ -n "${PGDATA_NEW}" ]; then
   target_dir=${PGDATA_NEW}
 else
   target_dir="${pgdata_base}/${target_version}/docker"
-  ls -lahF "${pgdata_base}"
 fi
 
 if [ "${CLEAN_NEW}" = "1" ]; then
@@ -50,7 +49,10 @@ if [ "${CLEAN_NEW}" = "1" ]; then
 fi
 
 echo "Upgrading from ${source_dir} to ${target_dir}..."
-mkdir -p "${target_dir}"
+mkdir -p "${target_dir}" || {
+  echo "Failed creating ${target_dir}"
+  ls -lahF "${pgdata_base}"
+}
 source_bin_dir="/usr/local-pg${source_version}/bin"
 target_bin_dir="/usr/local-pg${target_version}/bin"
 pg_user="${PGUSER:-postgres}"
@@ -61,7 +63,6 @@ cd /tmp
 set -x
 
 chmod 700 "${source_dir}"
-ls -lahF "${pgdata_base}"
 
 if [ "${target_version}" -ge 18 ]; then
   initdb_args="--no-data-checksum"

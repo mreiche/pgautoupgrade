@@ -17,13 +17,13 @@ Note: It does not start a PostgreSQL server nor does it clean up the old cluster
 ```shell
 docker run \
   --rm \
-  --user "id-of-your-data-folder" \
+  --user "${POSTGRES_UID:-70}" \
   -e PGDATA="/var/lib/postgresql/data" \
   -v "/var/data/dir:/var/lib/postgresql" \
   mreiche/pgautoupgrade:14-18.alpine3.24
 ```
 
-### As Kubernets init container
+### As Kubernetes init container
 
 ```yaml
 initContainers:
@@ -47,6 +47,7 @@ initContainers:
 services:
   postgres-upgrade:
     image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
+    user: 70  # UserID of the volume
     environment:
       PGDATA: /var/lib/postgresql/pgdata
     volumes:

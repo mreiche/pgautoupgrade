@@ -37,7 +37,15 @@ test_migration() {
     base_data_dir="pgdata"
     data_dir="${base_data_dir}/${save_from}"
 
-    rm -rf ${base_data_dir} || true
+    if [ -e "${base_data_dir}" ]; then
+      if [ "${CI:-}" = "true" ]; then
+        echo "CI: Delete ${base_data_dir}"
+        sudo rm -rf "${base_data_dir}"
+      else
+        rm -rf "${base_data_dir}"
+      fi
+    fi
+
     mkdir -p "${data_dir}"
 
     name="postgres_${save_from}"
@@ -60,7 +68,12 @@ test_migration() {
 
     retry "docker exec ${name} pg_isready"
 
-    #postgres_uid=$(docker exec "${name}" id -u postgres)
+    postgres_uid=$(docker exec "${name}" id -u postgres)
+
+    if [ "${CI:-}" = "true" ]; then
+      echo "CI: Change owner to ${postgres_uid}"
+    	sudo chown -R "${postgres_uid}" $(pwd)/${data_dir}
+    fi
 
     rand_int=$((RANDOM % 1000))
     docker exec "${name}" psql -U postgres -c "CREATE TABLE test(id int4); INSERT INTO test VALUES(${rand_int});"
@@ -73,8 +86,8 @@ test_migration() {
 
     # Run the migration
     upgrade_name="${name}_pgautoupgrade"
-    #      --user "${postgres_uid}" \
     docker run \
+      --user "${postgres_uid}" \
       --rm \
       -e PGTARGET="${pg_target}" \
       -e PGDATA="/var/lib/postgresql/${save_from}" \
