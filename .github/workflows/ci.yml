@@ -48,17 +48,8 @@ jobs:
             # renovate: datasource=docker depName=debian versioning=docker
             OS_VERSION: "13.7"
             alias: "debian"
-        pg_target:
-#          - # renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
-#            PG_VERSION: "14.24"
-#          - # renovate: datasource=repology depName=homebrew/postgresql@15 versioning=loose
-#            PG_VERSION: "15.19"
-#          - # renovate: datasource=repology depName=homebrew/postgresql@16 versioning=loose
-#            PG_VERSION: "16.15"
-#          - # renovate: datasource=repology depName=homebrew/postgresql@17 versioning=loose
-#            PG_VERSION: "17.11"
-          - # renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
-            PG_VERSION: "18.6"
+        pg_from: 14
+        pg_to: 18
 
     steps:
       - name: Set up QEMU
@@ -84,12 +75,7 @@ jobs:
           # add a .0 to each Postgres version so it is compliant with semantic version
           # note that the .0 never ends up on an actual tag
           tags: |
-            type=semver,pattern={{major}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}
-            type=semver,pattern={{major}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
-            type=semver,pattern={{major}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.alias }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ matrix.pg_target.PG_VERSION }}.0,suffix=-${{ matrix.operating_system.alias }}
+            ${{ matrix.pg_from }}-{{ matrix.pg_to }}.${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
 
 #      - name: Build image for test
 #        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0

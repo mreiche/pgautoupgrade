@@ -1,5 +1,4 @@
 docker build \
-  -f alpine.Dockerfile \
-  --build-arg PGTARGET="18.6" \
+  -f debian.Dockerfile \
   -t ghcr.io/mreiche/pgautoupgrade:latest \
    .
