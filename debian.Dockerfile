@@ -56,7 +56,7 @@ COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
 # Install locale
 RUN apt update && \
-  apt install -y icu-devtools locales-all tzdata \
+  apt install -y icu-devtools locales-all tzdata passwd \
   && locale -a \
   && apt clean
 

@@ -55,7 +55,8 @@ else
 fi
 
 echo "Create user postgres with uid: ${pguid}"
-echo "postgres:x:${pguid}:${pguid}:PostgreSQL:/tmp:/bin/sh" >> /etc/passwd
+useradd -u "${pguid}" -M -s /bin/sh postgres
+#echo "postgres:x:${pguid}:${pguid}:PostgreSQL:/tmp:/bin/sh" >> /etc/passwd
 
 su -m postgres -s /bin/sh -c "mkdir -p ${target_dir}" || {
   echo "Failed creating ${target_dir}"
