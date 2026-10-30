@@ -41,11 +41,12 @@ docker run \
 
 Environment variables:
 ```shell
-PGDATA=""     # Old PostgreSQL data
-PGDATA_TO=""  # Target PostgreSQL data (optional)
+PGDATA=""             # Old PostgreSQL data
+PGDATA_TO=""          # Target PostgreSQL data (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point (optional)
-CLEAN_TARGET="0"  # Deletes the target PostgreSQL data (optional)
-NEW_OPTIONS=""    # Inject options for the new PostgreSQL data (optional)
+CLEAN_TARGET="0"      # Deletes the target PostgreSQL data (optional)
+NEW_OPTIONS=""        # Inject options for the new PostgreSQL data (optional)
+SLEEP_ON_ERROR="10"   # Sleep after pg_upgrade failed (optional)
 ```
 
 ## Debian vs Alpine based images
