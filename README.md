@@ -22,7 +22,7 @@ docker run \
   mreiche/pgautoupgrade:14-18.alpine3.24
 ```
 
-### As Kubernets init container
+### As Kubernetes init container
 
 ```yaml
 initContainers:
@@ -41,7 +41,7 @@ initContainers:
         mountPath: /var/lib/postgresql
 ```
 
-### As Docker compose
+### As Docker compose (WIP)
 ```yaml
 services:
   postgres-upgrade:
