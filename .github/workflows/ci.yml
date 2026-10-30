@@ -48,8 +48,8 @@ jobs:
             # renovate: datasource=docker depName=debian versioning=docker
             OS_VERSION: "13.7"
             alias: "debian"
-        pg_from: 14
-        pg_to: 18
+        pg_from: "14"
+        pg_to: "18"
 
     steps:
       - name: Set up QEMU
