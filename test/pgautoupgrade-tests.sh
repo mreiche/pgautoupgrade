@@ -12,6 +12,7 @@ retry() {
 	  echo $command failed
 
 		if (( elapsed >= max_wait )); then
+		  echo "Failed after ${elapsed} seconds"
 			return 1
 		fi
 
