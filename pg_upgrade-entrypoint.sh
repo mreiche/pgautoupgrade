@@ -84,7 +84,7 @@ pg_upgrade \
   -d "${source_dir}" \
   -D "${target_dir}" \
   --socketdir /tmp/pg-upgrade-sockets || {
-  cat "${target_dir}/pg_upgrade_output.d/*.*/log/pg_upgrade_server.log" || true
+  cat ${target_dir}/pg_upgrade_output.d/*/log/pg_upgrade_server.log || true
   exit 1
 }
 
