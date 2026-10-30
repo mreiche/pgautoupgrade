@@ -42,7 +42,7 @@ initContainers:
         mountPath: /var/lib/postgresql
 ```
 
-### As Docker compose
+### As Docker compose (WIP)
 ```yaml
 services:
   postgres-upgrade:
