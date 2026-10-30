@@ -63,9 +63,11 @@ test_migration() {
     rand_int=$((RANDOM % 1000))
     docker exec "${name}" psql -U postgres -c "CREATE TABLE test(id int4); INSERT INTO test VALUES(${rand_int});"
     docker exec -u postgres "${name}" sh -exc 'pg_ctl -D "$PGDATA" -m fast stop' || true
-    until ! docker exec "${name}" pg_isready -U postgres >/dev/null 2>&1; do
-    	sleep 1
+    while docker inspect -f '{{.State.Running}}' "${name}" ; do
+      sleep 1
     done
+
+    docker ps
 
     pg_target=${to%%[^0-9]*}
 
