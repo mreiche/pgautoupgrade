@@ -35,7 +35,7 @@ fi
 
 pgdata_base=${PGDATA_BASE:-/var/lib/postgresql}
 
-echo whoami: $(whoami)
+echo whoami: $(id -u)
 
 if [ -n "${PGDATA_NEW}" ]; then
   target_dir=${PGDATA_NEW}
