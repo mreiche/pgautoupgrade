@@ -68,6 +68,7 @@ test_migration() {
     done
 
     docker ps
+    ls -lahF $(pwd)/${data_dir}
 
     pg_target=${to%%[^0-9]*}
 
