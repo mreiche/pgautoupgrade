@@ -77,7 +77,7 @@ cd /tmp
 
 pg_upgrade \
   --link \
-  -O "${PG_UPGRADE_OPTIONS}" \
+  -O "${NEW_OPTIONS}" \
   -b "${source_bin_dir}" \
   -B "${target_bin_dir}" \
   -d "${source_dir}" \

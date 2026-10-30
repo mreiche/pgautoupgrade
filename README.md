@@ -45,6 +45,7 @@ PGDATA=""     # Old PostgreSQL data
 PGDATA_TO=""  # Target PostgreSQL data (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point (optional)
 CLEAN_TARGET="0"  # Deletes the target PostgreSQL data (optional)
+NEW_OPTIONS=""    # Inject options for the new PostgreSQL data (optional)
 ```
 
 ## Debian vs Alpine based images
@@ -59,3 +60,8 @@ To use either of those, choose the version of PostgreSQL you'd
 like to upgrade to, then change your docker image to match:
 
     pgautoupgrade/pgautoupgrade:18-trixie
+
+## Troubleshooting
+
+### Symptom: FATAL: logical replication slot "xxx" exists, but wal_level < logical
+* Solution: Pass `NEW_OPTIONS="-c wal_level=logical"`
