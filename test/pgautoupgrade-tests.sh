@@ -51,7 +51,6 @@ test_migration() {
 
     # Initial data
     docker run \
-      --user "$(id -u):$(id -g)" \
       --rm \
       --detach \
       -e POSTGRES_PASSWORD=secret \
@@ -60,6 +59,8 @@ test_migration() {
       "postgres:${from}"
 
     retry "docker exec ${name} pg_isready"
+
+    postgres_uid=$(docker exec "${name}" id -u postgres)
 
     rand_int=$((RANDOM % 1000))
     docker exec "${name}" psql -U postgres -c "CREATE TABLE test(id int4); INSERT INTO test VALUES(${rand_int});"
@@ -76,6 +77,7 @@ test_migration() {
     # Run the migration
     upgrade_name="${name}_pgautoupgrade"
     docker run \
+      --user "${postgres_uid}" \
       --rm \
       -e PGTARGET="${pg_target}" \
       -e PGDATA="/var/lib/postgresql/${save_from}" \
