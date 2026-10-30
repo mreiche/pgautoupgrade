@@ -54,10 +54,11 @@ COPY --from=build-16 /usr/local-pg16 /usr/local-pg16
 COPY --from=build-17 /usr/local-pg17 /usr/local-pg17
 COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
-# Install locale
+# Install locale and add suer
 RUN apt update && \
   apt install -y icu-devtools locales-all tzdata passwd \
   && locale -a \
+  && useradd -M -s /bin/sh postgres \
   && apt clean
 
 ARG PGTARGET

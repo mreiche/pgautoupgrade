@@ -63,6 +63,7 @@ COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 RUN apk update \
   && apk add --update icu-libs lz4-libs musl musl-utils musl-locales tzdata shadow \
   && locale -a \
+  && useradd -M -s /bin/sh postgres \
   && apk cache clean
 
 ARG PGTARGET

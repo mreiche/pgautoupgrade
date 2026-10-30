@@ -46,17 +46,18 @@ if [ "${CLEAN_NEW}" = "1" ]; then
   rm -rf "${target_dir}"
 fi
 
+
 echo "Upgrading from ${source_dir} to ${target_dir}..."
 
-if [ -n "${PGUID}" ]; then
-  pguid="${PGUID}"
-else
-  pguid=$(id -u)
-fi
+myuid=$(id -u)
+echo "whoami: ${myuid}"
 
-echo "Create user postgres with uid: ${pguid}"
-useradd -u "${pguid}" -M -s /bin/sh postgres
-#echo "postgres:x:${pguid}:${pguid}:PostgreSQL:/tmp:/bin/sh" >> /etc/passwd
+# If the container runs as root and a PGUID is given
+# We need to change the uid of the pre-existing user "postgres" to this uid
+if [ -n "${PGUID}" && "${myuid}" -eq 0 ]; then
+  echo "Change uid of user postgres to: ${PGUID}"
+  usermod -u "${PGUID}" postgres
+fi
 
 su -m postgres -s /bin/sh -c "mkdir -p ${target_dir}" || {
   echo "Failed creating ${target_dir}"
