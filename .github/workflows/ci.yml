@@ -91,20 +91,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker meta
-        if: ${{ github.event_name != 'pull_request' }}
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
-            ${{ env.PG_FROM }}-${{ env.PG_TO }}.${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}
-
-      - name: Docker meta
-        if: ${{ github.event_name == 'pull_request' }}
-        id: meta
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}
+            type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
+            ${{ env.PG_FROM }}-${{ env.PG_TO }}.${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }},enable=${{ github.event_name != 'pull_request' }}
 
       - name: Build and push image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
