@@ -64,7 +64,7 @@ PGDATA=""             # Old PostgreSQL data
 PGUSER="postgres"     # PostgreSQL superuser to use (optional)
 PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
-OPTIONS=""            # Additional options for pg_upgrade (optional)
+PGUPGRADE_OPTIONS=""  # Additional options for pg_upgrade (optional)
 CLEAN_NEW="0"         # Deletes the new PostgreSQL data (optional)
 ```
 
