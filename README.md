@@ -36,7 +36,7 @@ docker run \
     --rm \
     -e PGDATA="/var/lib/postgresql/data" \
     -v "/var/data/dir:/var/lib/postgresql" \
-    "mreiche/pgautoupgrade:latest"
+    mreiche/pgautoupgrade:18.6-alpine3.24
 ```
 
 ## As init container
@@ -51,8 +51,8 @@ initContainers:
         value: /var/lib/postgresql/pgdata
       - name: CLEAN_NEW
         value: "1"
-      - name: OPTIONS_OLD
-        value: "-c wal_level=logical"
+      - name: OPTIONS
+        value: "--link -o '-c wal_level=logical'"
     volumeMounts:
       - name: pgdata
         mountPath: /var/lib/postgresql
@@ -64,9 +64,8 @@ PGDATA=""             # Old PostgreSQL data
 PGUSER="postgres"     # PostgreSQL superuser to use (optional)
 PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
+OPTIONS=""            # Additional options for pg_upgrade (optional)
 CLEAN_NEW="0"         # Deletes the new PostgreSQL data (optional)
-OPTIONS_OLD=""        # Inject options for the old PostgreSQL data (optional)
-OPTIONS_NEW=""        # Inject options for the new PostgreSQL data (optional)
 ```
 
 ## Debian vs Alpine based images

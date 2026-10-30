@@ -84,9 +84,7 @@ cd /tmp
 
 pg_upgrade \
   -U "${pg_user}" \
-  --link \
-  -o "${OPTIONS_OLD}" \
-  -O "${OPTIONS_NEW}" \
+  ${OPTIONS} \
   -b "${source_bin_dir}" \
   -B "${target_bin_dir}" \
   -d "${source_dir}" \
