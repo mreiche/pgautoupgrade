@@ -58,7 +58,6 @@ COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 RUN apt update && \
   apt install -y icu-devtools locales-all tzdata passwd \
   && locale -a \
-  && useradd -M -s /bin/sh postgres \
   && apt clean
 
 ARG PGTARGET
@@ -66,9 +65,7 @@ ENV PGTARGET=${PGTARGET}
 
 # Copy across all our shell scripts
 WORKDIR /opt
-COPY pg_upgrade-entrypoint.sh /usr/local/bin
-
-#USER nobody
+COPY pg_upgrade-entrypoint.sh pg_upgrade.sh /usr/local/bin/
 
 # Set up the script run by the container when it starts
 ENTRYPOINT ["/usr/local/bin/pg_upgrade-entrypoint.sh"]
