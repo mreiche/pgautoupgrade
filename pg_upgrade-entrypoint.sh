@@ -67,6 +67,7 @@ else
 fi
 
 pg_user="${PGUSER:-postgres}"
+eval "pg_upgrade_args=(${PGUPGRADE_OPTIONS})"
 
 set -x
 
@@ -84,7 +85,7 @@ cd /tmp
 
 pg_upgrade \
   -U "${pg_user}" \
-  ${PGUPGRADE_OPTIONS} \
+  "${pg_upgrade_args[@]}" \
   -b "${source_bin_dir}" \
   -B "${target_bin_dir}" \
   -d "${source_dir}" \
