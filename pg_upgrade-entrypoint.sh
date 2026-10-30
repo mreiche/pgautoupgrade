@@ -35,10 +35,13 @@ fi
 
 pgdata_base=${PGDATA_BASE:-/var/lib/postgresql}
 
+echo whoami: $(whoami)
+
 if [ -n "${PGDATA_NEW}" ]; then
   target_dir=${PGDATA_NEW}
 else
   target_dir="${pgdata_base}/${target_version}/docker"
+  ls -lahF "${pgdata_base}"
 fi
 
 if [ "${CLEAN_NEW}" = "1" ]; then
@@ -47,7 +50,6 @@ if [ "${CLEAN_NEW}" = "1" ]; then
 fi
 
 echo "Upgrading from ${source_dir} to ${target_dir}..."
-
 mkdir -p "${target_dir}"
 source_bin_dir="/usr/local-pg${source_version}/bin"
 target_bin_dir="/usr/local-pg${target_version}/bin"
@@ -57,8 +59,6 @@ mkdir -m 700 -p /tmp/pg-upgrade-sockets
 cd /tmp
 
 set -x
-
-whoami
 
 chmod 700 "${source_dir}"
 ls -lahF "${pgdata_base}"

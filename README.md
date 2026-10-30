@@ -17,6 +17,7 @@ Note: It does not start a PostgreSQL server nor does it clean up the old cluster
 ```shell
 docker run \
   --rm \
+  --user "id-of-your-data-folder" \
   -e PGDATA="/var/lib/postgresql/data" \
   -v "/var/data/dir:/var/lib/postgresql" \
   mreiche/pgautoupgrade:14-18.alpine3.24
