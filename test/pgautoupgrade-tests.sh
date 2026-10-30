@@ -11,13 +11,13 @@ retry() {
 
 	  echo $command failed
 
-		if (( elapsed >= max_wait )); then
+		if [ "${elapsed}" -ge "${max_wait}" ]; then
 		  echo "Failed after ${elapsed} seconds"
 			return 1
 		fi
 
 		sleep 1
-		((elapsed++))
+		elapsed=$((elapsed + 1))
 	done
 
 	return 0
