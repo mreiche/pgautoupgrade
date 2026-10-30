@@ -44,6 +44,7 @@ Environment variables:
 PGDATA=""     # Old PostgreSQL data
 PGDATA_TO=""  # Target PostgreSQL data (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point (optional)
+CLEAN_TARGET="0"  # Deletes the target PostgreSQL data (optional)
 ```
 
 ## Debian vs Alpine based images
