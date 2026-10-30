@@ -69,7 +69,7 @@ fi
 set -x
 
 initdb -D "${target_dir}" --no-data-checksums
-
+chmod 700 "${source_dir}"
 ls -lahF "${pgdata_base}"
 
 mkdir -m 700 -p /tmp/pg-upgrade-sockets
