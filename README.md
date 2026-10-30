@@ -1,11 +1,11 @@
-# pgautoupgrade-simple
+# pgautoupgrade
 
 This is a PostgreSQL Docker image to automatically upgrade
 your database.
 
 It is a much simpler and flexible implementation inspired/forked by [pgautoupgrade/docker-pgautoupgrade](https://github.com/pgautoupgrade/docker-pgautoupgrade)
 
-Its whole purpose in life is to automatically detect the
+Its whole purpose is to automatically detect the
 version of PostgreSQL used in the existing PostgreSQL data
 directory, then automatically upgrade it (if needed) to the
 required version of PostgreSQL using `pg_upgrade`.
