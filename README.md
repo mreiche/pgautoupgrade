@@ -19,7 +19,7 @@ docker run \
     --rm \
     -e PGDATA="/var/lib/postgresql/data" \
     -v "/var/data/dir:/var/lib/postgresql" \
-    mreiche/pgautoupgrade:18.6-alpine3.24
+    mreiche/pgautoupgrade:14-18.alpine3.24
 ```
 
 ### As init container
@@ -27,7 +27,7 @@ docker run \
 ```yaml
 initContainers:
   - name: postgres-upgrade
-    image: ghcr.io/mreiche/pgautoupgrade:18.6-alpine3.24
+    image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
     securityContext: {}  # Pass your security context here
     env:
       - name: PGDATA
@@ -49,11 +49,13 @@ PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
 PGUPGRADE_OPTIONS=""  # Additional options for pg_upgrade (optional)
 CLEAN_NEW="0"         # Deletes the new PostgreSQL data (optional)
+PGTARGET="18"         # Target PostgreSQL version (optional)
 ```
 
-## Supported PostgreSQL versions
+### Supported PostgreSQL versions
 
-Only upgrades to the newest PostgreSQL version (18) are supported right now.
+The image tag `14-18.xxx` describes, which PostgreSQL versions are supported within the image.
+By default, the migration is performed to the highest version (18). If you want to migrate to a lower version, set `PGTARGET="17"`.
 
 ## Debian vs Alpine based images
 
@@ -66,7 +68,7 @@ To solve that problem, we have Debian based images available as well.
 To use either of those, choose the version of PostgreSQL you'd
 like to upgrade to, then change your docker image to match:
 
-    ghcr.io/mreiche/pgautoupgrade:18.6-debian13.7
+    ghcr.io/mreiche/pgautoupgrade:14-18.debian13.7
 
 ## Troubleshooting
 
