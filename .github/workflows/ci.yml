@@ -89,7 +89,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
-            type=ref,event=pr,prefix=${{ env.PG_FROM }}-${{ env.PG_TO }}.${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }},enable=${{ github.event_name == 'pull_request' }}
+            type=ref,event=pr,prefix=${{ env.PG_FROM }}-${{ env.PG_TO }}.${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }}-pr-,enable=${{ github.event_name == 'pull_request' }}
             ${{ env.PG_FROM }}-${{ env.PG_TO }}.${{ matrix.operating_system.flavor }}${{ matrix.operating_system.OS_VERSION }},enable=${{ github.event_name != 'pull_request' }}
 
       - name: Build and push image
