@@ -64,7 +64,7 @@ volumes:
 ### Environment variables
 ```shell
 PGDATA=""             # Old PostgreSQL data
-PGUID="70"            # UID of the volume owner (optional)
+PGUID="70"            # UID of the volume owner, container must run as root if set (optional)
 PGUSER="postgres"     # PostgreSQL superuser to use (optional)
 PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
