@@ -63,8 +63,8 @@ volumes:
 
 ### Environment variables
 ```shell
-PGDATA=""             # Old PostgreSQL data
-PGUID="70"            # UID of the volume owner, container must run as root if set (optional)
+PGDATA=""             # Old PostgreSQL data (source)
+PGUID=""              # UID of the volume owner, container must run as root if set (optional)
 PGUSER="postgres"     # PostgreSQL superuser to use (optional)
 PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
@@ -81,6 +81,7 @@ So either your container user must match the UID of the volume owner or run it a
 Additional facts:
 - It does not start a PostgreSQL server
 - It does not manipulate the source data (unless `--link` is used)
+- It always migrates the data to `$PGDATA_BASE/$PGTARGET/docker` unless `PGDATA_NEW` is set
 - It does not clean up the old cluster data
 
 ### Supported PostgreSQL versions
@@ -94,11 +95,10 @@ For older versions (from 9.5), try the older images `18.6-alpine3.24` or `18.6-d
 
 ## Debian vs Alpine based images
 
-The default official Docker PostgreSQL image is Debian Linux
-based, and upgrading from that to one of our Alpine Linux
-based images doesn't always work out well.
+The default official Docker PostgreSQL image is Debian-based, 
+and upgrading from that to one of our Alpine-based images doesn't always work out well.
 
-To solve that problem, we have Debian based images available as well.
+To solve that problem, we have Debian-based images available as well.
 
 To use either of those, choose the version of PostgreSQL you'd
 like to upgrade to, then change your docker image to match:
