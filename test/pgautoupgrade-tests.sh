@@ -80,7 +80,6 @@ test_migration() {
       sleep 1
     done
 
-
     echo "Run migration as: ${postgres_uid}"
 
     if [ "${CI:-}" = "true" ]; then
