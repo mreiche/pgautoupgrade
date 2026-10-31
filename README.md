@@ -11,7 +11,7 @@ It is a much simpler and flexible implementation inspired/forked by [pgautoupgra
 ```shell
 docker run \
   --rm \
-  --user "${PGUID:-70}" \
+  -e PGUID="70" \
   -e PGDATA="/var/lib/postgresql/data" \
   -v "/var/data/dir:/var/lib/postgresql" \
   mreiche/pgautoupgrade:14-18.alpine3.24
@@ -43,9 +43,9 @@ initContainers:
 services:
   postgres-upgrade:
     image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
-    user: 70  # UID of the volume owner
     environment:
       PGDATA: /var/lib/postgresql/pgdata
+      PGUID: 70  # UID of the volume owner
     volumes:
       - pgdata:/var/lib/postgresql
   
@@ -64,21 +64,19 @@ volumes:
 ### Environment variables
 ```shell
 PGDATA=""             # Old PostgreSQL data
+PGUID="70"            # UID of the volume owner (optional)
 PGUSER="postgres"     # PostgreSQL superuser to use (optional)
 PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
 PGUPGRADE_OPTIONS=""  # Additional options for pg_upgrade (optional)
 CLEAN_NEW="0"         # Deletes the new PostgreSQL data (optional)
-PGTARGET="18"         # Target PostgreSQL version (optional)
+PGTARGET="18"         # Target PostgreSQL major version (optional)
 ```
 
 ### How it works
 
 The `pg_upgrade` is pretty strict. It requires the same UID for the process and source and target directories.
-This container detects the owner of `PGDATA`. If it differs from the process UID, it will try to create a user `postgres` with that UID
-and runs the upgrade process as this user.
-
-So make sure, that this container runs either as root (for the user switch) or as the same UID as the owner of `PGDATA`.
+So either your container user must match the UID of the volume owner or run it as root and pass the `PGUID` with volume owner UID for an internal user switch.
 
 Additional facts:
 - It does not start a PostgreSQL server
