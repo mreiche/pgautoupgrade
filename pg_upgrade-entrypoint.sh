@@ -24,7 +24,8 @@ test -f "${source_dir}/PG_VERSION" || {
   exit 2
 }
 source_version=$(cat "${source_dir}/PG_VERSION")
-echo "Detected source version ${source_version} in ${source_dir}"
+data_uid=$(stat -c '%u' "${source_dir}")
+echo "Detected source version ${source_version} in ${source_dir} owned by uid: ${data_uid}"
 
 export target_version=${PGTARGET%%.*}
 
@@ -43,8 +44,8 @@ fi
 
 echo "Upgrading from ${source_dir} to ${target_dir}..."
 
-myuid=$(id -u)
-echo "whoami: ${myuid}"
+my_uid=$(id -u)
+echo "whoami: ${my_uid}"
 
 export source_bin_dir="/usr/local-pg${source_version}/bin"
 export target_bin_dir="/usr/local-pg${target_version}/bin"
@@ -55,13 +56,12 @@ cd /tmp
 
 chmod 700 "${source_dir}"
 
-# If a PGUID is given
-# We assume that this container runs as root
-# We create a user "postgres" with this id
-# And run the migration as this user
-if [ -n "${PGUID}" ]; then
-  echo "Create user postgres with uid: ${PGUID}"
-  useradd -u "${PGUID}" -M -s /bin/sh postgres
+# If the data uid differs from the current uid
+if [ "${data_uid}" != "${my_uid}" ]; then
+  # Create a user with that uid
+  echo "Create user postgres with uid: ${data_uid}"
+  useradd -u "${data_uid}" -M -s /bin/sh postgres
+  # And run the migration as this user
   su -m postgres /usr/local/bin/pg_upgrade.sh
 else
   /usr/local/bin/pg_upgrade.sh

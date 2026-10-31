@@ -80,7 +80,6 @@ test_migration() {
       sleep 1
     done
 
-
     echo "Run migration as: ${postgres_uid}"
 
     if [ "${CI:-}" = "true" ]; then
@@ -92,7 +91,7 @@ test_migration() {
     upgrade_name="${name}_pgautoupgrade"
     docker run \
       --rm \
-      -e PGUID="${postgres_uid}" \
+      --user "${postgres_uid}" \
       -e PGTARGET="${pg_target}" \
       -e PGDATA="/var/lib/postgresql/${name}" \
       -e PGDATA_BASE="/var/lib/postgresql" \

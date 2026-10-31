@@ -1,16 +1,10 @@
 # pgautoupgrade
 
 This is a PostgreSQL Docker image to automatically upgrade
-your database.
+your database by detecting the version of the PostgreSQL data directory, then automatically upgrades it (if needed) to the
+given target version using `pg_upgrade`. More details here: [How it works](#how-it-works)
 
 It is a much simpler and flexible implementation inspired/forked by [pgautoupgrade/docker-pgautoupgrade](https://github.com/pgautoupgrade/docker-pgautoupgrade)
-
-Its whole purpose is to automatically detect the
-version of PostgreSQL used in the existing PostgreSQL data
-directory, then automatically upgrade it (if needed) to the
-required version of PostgreSQL using `pg_upgrade`.
-
-Note: It does not start a PostgreSQL server nor does it clean up the old cluster data.
 
 ## How to use this image
 
@@ -29,7 +23,9 @@ docker run \
 initContainers:
   - name: postgres-upgrade
     image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
-    securityContext: {}  # Pass your security context here
+    securityContext:
+      runAsUser: 70  # Pass your UID here
+      fsGroup: 70  # Pass your UID here
     env:
       - name: PGDATA
         value: /var/lib/postgresql/pgdata
@@ -47,9 +43,9 @@ initContainers:
 services:
   postgres-upgrade:
     image: ghcr.io/mreiche/pgautoupgrade:14-18.alpine3.24
+    user: 70  # UID of the volume owner
     environment:
       PGDATA: /var/lib/postgresql/pgdata
-      PGUID: 70  # UID of the volume owner
     volumes:
       - pgdata:/var/lib/postgresql
   
@@ -68,7 +64,6 @@ volumes:
 ### Environment variables
 ```shell
 PGDATA=""             # Old PostgreSQL data
-PGUID="70"            # UID of the volume owner, container must run as root if set (optional)
 PGUSER="postgres"     # PostgreSQL superuser to use (optional)
 PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
@@ -77,14 +72,27 @@ CLEAN_NEW="0"         # Deletes the new PostgreSQL data (optional)
 PGTARGET="18"         # Target PostgreSQL version (optional)
 ```
 
+### How it works
+
+The `pg_upgrade` is pretty strict. It requires the same UID for the process and source and target directories.
+This container detects the owner of `PGDATA`. If it differs from the process UID, it will try to create a user `postgres` with that UID
+and runs the upgrade process as this user.
+
+So make sure, that this container runs either as root (for the user switch) or as the same UID as the owner of `PGDATA`.
+
+Additional facts:
+- It does not start a PostgreSQL server
+- It does not manipulate the source data (unless `--link` is used)
+- It does not clean up the old cluster data
+
 ### Supported PostgreSQL versions
 
 The image tag `14-18.xxx` describes, which PostgreSQL versions are supported within the image.
 By default, the migration is performed to the highest version (18). If you want to migrate to a lower version, set `PGTARGET="17"`.
 
-I dropped support for PostgreSQL 13 and lower, since they are [end-of-life](https://endoflife.date/postgresql) for a while now.
+I dropped support for PostgreSQL 13 and lower, since they are [end-of-life](https://endoflife.date/postgresql) for a while now. Please give feedback if you demand them.
 
-For older versions (from 9.5), use the older images `18.6-alpine3.24` or `18.6-debian13.7`.
+For older versions (from 9.5), try the older images `18.6-alpine3.24` or `18.6-debian13.7`.
 
 ## Debian vs Alpine based images
 
