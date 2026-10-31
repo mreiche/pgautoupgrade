@@ -75,7 +75,7 @@ PGTARGET="18"         # Target PostgreSQL major version (optional)
 
 ### How it works
 
-The `pg_upgrade` is pretty strict. It requires the same UID for the process and source and target directories.
+The `pg_upgrade` is pretty strict. It requires an existing user, which UID matches the process and source and target directories.
 So either your container user must match the UID of the volume owner or run it as root and pass the `PGUID` with volume owner UID for an internal user switch.
 
 Additional facts:
