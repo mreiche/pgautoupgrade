@@ -66,3 +66,7 @@ if [ -n "${PGUID}" ]; then
 else
   /usr/local/bin/pg_upgrade.sh
 fi
+
+if [ "${CLEAN_OLD}" == "1" ]; then
+  /tmp/delete_old_cluster.sh
+fi
