@@ -67,6 +67,9 @@ test_migration() {
 
     retry "docker exec ${name} pg_isready"
 
+    # It's sometimes still not ready
+    sleep 1
+
     if [ "${CI:-}" = "true" ]; then
       postgres_uid=$(docker exec "${name}" id -u postgres)
     else
