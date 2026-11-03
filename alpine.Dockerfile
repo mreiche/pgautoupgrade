@@ -61,7 +61,7 @@ COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
 # Install locale
 RUN apk update \
-  && apk add --update icu-libs lz4-libs musl musl-utils musl-locales tzdata shadow \
+  && apk add --update icu-libs lz4-libs musl musl-utils musl-locales tzdata shadow ossp-uuid \
   && locale -a \
   && apk cache clean
 

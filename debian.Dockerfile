@@ -55,8 +55,8 @@ COPY --from=build-17 /usr/local-pg17 /usr/local-pg17
 COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
 # Install locale and add suer
-RUN apt update && \
-  apt install -y icu-devtools locales-all tzdata passwd \
+RUN apt-get update \
+  && apt-get install -y icu-devtools locales-all tzdata passwd libossp-uuid16 \
   && locale -a \
   && apt clean
 
