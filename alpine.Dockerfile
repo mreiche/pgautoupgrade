@@ -20,7 +20,7 @@ WORKDIR ${BUILD_ROOT}
 # We might want to install "alpine-sdk" instead of "build-base", if build-base
 # doesn't have everything we need
 RUN apk update \
-  && apk add --update curl build-base icu-data-full icu-dev linux-headers lz4-dev musl musl-locales musl-utils tzdata zlib-dev zstd-dev bison flex perl \
+  && apk add --update curl build-base icu-data-full icu-dev linux-headers lz4-dev musl musl-locales musl-utils tzdata zlib-dev zstd-dev bison flex perl ossp-uuid-dev \
   && apk cache clean
 
 
@@ -61,7 +61,7 @@ COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
 # Install locale
 RUN apk update \
-  && apk add --update icu-libs lz4-libs musl musl-utils musl-locales tzdata shadow \
+  && apk add --update icu-libs lz4-libs musl musl-utils musl-locales tzdata shadow ossp-uuid \
   && locale -a \
   && apk cache clean
 

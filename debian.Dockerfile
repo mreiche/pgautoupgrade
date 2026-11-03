@@ -16,9 +16,9 @@ RUN mkdir ${BUILD_ROOT} \
 WORKDIR ${BUILD_ROOT}
 
 # Install things needed for development
-RUN apt update && \
-  apt install -y curl build-essential libicu-dev liblz4-dev locales tzdata zlib1g-dev libzstd-dev pkg-config bison flex && \
-  apt clean
+RUN apt update \
+  && apt-get install -y curl build-essential libicu-dev liblz4-dev locales tzdata zlib1g-dev libzstd-dev pkg-config bison flex libossp-uuid-dev \
+  && apt-get clean
 
 FROM base-build AS build-14
 ## renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
@@ -55,8 +55,8 @@ COPY --from=build-17 /usr/local-pg17 /usr/local-pg17
 COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
 
 # Install locale and add suer
-RUN apt update && \
-  apt install -y icu-devtools locales-all tzdata passwd \
+RUN apt-get update \
+  && apt-get install -y icu-devtools locales-all tzdata passwd libossp-uuid16 \
   && locale -a \
   && apt clean
 
