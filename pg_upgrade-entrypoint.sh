@@ -66,8 +66,3 @@ if [ -n "${PGUID}" ]; then
 else
   /usr/local/bin/pg_upgrade.sh
 fi
-
-if [ "$?" -ne "0" ]; then
-  echo "Waiting ${WAIT_AFTER_FAIL} seconds..."
-  sleep "${WAIT_AFTER_FAIL:-0}"
-fi

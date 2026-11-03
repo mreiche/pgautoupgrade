@@ -35,6 +35,7 @@ eval "${target_bin_dir}/pg_upgrade \
   -D '${target_dir}' \
   --socketdir /tmp/pg-upgrade-sockets" || {
   cat ${target_dir}/pg_upgrade_output.d/*/log/pg_upgrade_server.log || true
+  cat ${target_dir}/pg_upgrade_output.d/*/*.txt || true
   exit 1
 }
 
