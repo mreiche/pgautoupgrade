@@ -17,7 +17,6 @@ WORKDIR ${BUILD_ROOT}
 
 # Install things needed for development
 RUN apt update \
-  && apt-cache search uuid \
   && apt-get install -y curl build-essential libicu-dev liblz4-dev locales tzdata zlib1g-dev libzstd-dev pkg-config bison flex libossp-uuid-dev \
   && apt-get clean
 
