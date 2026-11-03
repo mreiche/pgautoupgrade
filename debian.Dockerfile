@@ -16,9 +16,10 @@ RUN mkdir ${BUILD_ROOT} \
 WORKDIR ${BUILD_ROOT}
 
 # Install things needed for development
-RUN apt update && \
-  apt install -y curl build-essential libicu-dev liblz4-dev locales tzdata zlib1g-dev libzstd-dev pkg-config bison flex && \
-  apt clean
+RUN apt update \
+  && apt-cache search uuid \
+  && apt-get install -y curl build-essential libicu-dev liblz4-dev locales tzdata zlib1g-dev libzstd-dev pkg-config bison flex uuid-dev \
+  && apt-get clean
 
 FROM base-build AS build-14
 ## renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
