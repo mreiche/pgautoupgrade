@@ -41,3 +41,7 @@ eval "${target_bin_dir}/pg_upgrade \
 if [ "${target_version}" -ge 18 ]; then
   eval "${target_bin_dir}/pg_checksums --enable -D '${target_dir}'"
 fi
+
+if [ "${CLEAN_OLD:-0}" = "1" ]; then
+  /tmp/delete_old_cluster.sh
+fi
