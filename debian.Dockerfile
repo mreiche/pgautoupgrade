@@ -1,5 +1,5 @@
 # renovate: datasource=docker depName=debian versioning=loose
-ARG DEBIAN_VERSION=13.7-slim
+ARG DEBIAN_VERSION=13.7
 
 ### Things we need in all build containers
 FROM debian:${DEBIAN_VERSION} AS base-build
