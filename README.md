@@ -70,6 +70,7 @@ PGUSER="postgres"     # PostgreSQL superuser to use (optional)
 PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
 PGUPGRADE_OPTIONS=""  # Additional options for pg_upgrade (optional)
+PGCHECKSUMS_OPTIONS=""  # Additional options for pg_checksums (optional)
 PGTARGET="18"         # Target PostgreSQL major version (optional)
 SKIP_NEW="0"          # Skips the migration if new PostgreSQL data directory already exists (optional)
 CLEAN_NEW="0"         # Deletes the new PostgreSQL data (optional)
@@ -121,4 +122,12 @@ like to upgrade to, then change your docker image to match:
   volumeMounts:
     - name: config
       mountPath: /etc/postgresql
+  ```
+  
+### Symptom: Slow migration
+* Reason: Data must be copied and synced to disk
+* Solution: Try the following settings if you know what you are doing
+  ```shell
+  PGUPGRADE_OPTIONS="--link"  # Hard links instead of copying
+  PGCHECKSUMS_OPTIONS="--progress --no-sync"  # Not ACID compliant
   ```
