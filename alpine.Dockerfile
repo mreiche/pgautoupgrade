@@ -26,22 +26,22 @@ RUN apk update \
 
 FROM base-build AS build-14
 ## renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
-ENV PGVERSION="14.24"
+ENV PGVERSION=14.25
 RUN /usr/local/bin/build-postgres.sh
 
 FROM base-build AS build-15
 ## renovate: datasource=repology depName=homebrew/postgresql@15 versioning=loose
-ENV PGVERSION=15.19
+ENV PGVERSION=15.20
 RUN /usr/local/bin/build-postgres.sh
 
 FROM base-build AS build-16
 ## renovate: datasource=repology depName=homebrew/postgresql@16 versioning=loose
-ENV PGVERSION=16.15
+ENV PGVERSION=16.16
 RUN /usr/local/bin/build-postgres.sh
 
 FROM base-build AS build-17
 ## renovate: datasource=repology depName=homebrew/postgresql@17 versioning=loose
-ENV PGVERSION=17.11
+ENV PGVERSION=17.12
 RUN /usr/local/bin/build-postgres.sh
 
 FROM base-build AS build-18
