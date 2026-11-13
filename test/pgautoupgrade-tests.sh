@@ -2,6 +2,12 @@
 
 export flavor=${FLAVOR:-alpine}
 
+if [ "${flavor}" = "debian" ]; then
+  pg_flavor="trixie"
+else
+  pg_flavor="${flavor}"
+fi
+
 retry() {
 	local command="$@"
 	local max_wait="${2:-60}"
@@ -121,12 +127,12 @@ test_migration() {
     docker stop "${test_name}"
 }
 
-@test "From 14 to 18 (${flavor})" {
-  test_migration "14-alpine" "18-alpine"
+@test "From 14 to 18 (${flavor}/${pg_flavor})" {
+  test_migration "14-${pg_flavor}" "18-${pg_flavor}"
 }
 
-@test "From 14 to 17 (${flavor})" {
-  test_migration "14-alpine" "17-alpine"
+@test "From 14 to 17 (${flavor}/${pg_flavor})" {
+  test_migration "14-${pg_flavor}" "17-${pg_flavor}"
 }
 
 teardown() {
