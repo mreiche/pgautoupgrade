@@ -49,7 +49,7 @@
   [[ "$output" =~ "Upgrading from lib/postgresql/15/data to lib/postgresql/18/docker" ]]
 }
 
-@test "PGDATA_NEW" {
+@test "PGDATA_NEW with SKIP_NEW upgrades" {
   pgdata="lib/postgresql/from"
   mkdir -p "${pgdata}"
   echo "17" > "${pgdata}/PG_VERSION"
@@ -57,12 +57,13 @@
   run env \
     PGDATA="${pgdata}" \
     PGDATA_NEW="lib/postgresql/to" \
+    SKIP_NEW="1" \
     PGTARGET="18" \
     "./pg_upgrade-entrypoint.sh"
   [[ "$output" =~ "Upgrading from lib/postgresql/from to lib/postgresql/to" ]]
 }
 
-@test "SKIP_NEW" {
+@test "SKIP_NEW dismisses upgrade" {
   pgdata_from="lib/postgresql/from"
   pgdata_to="lib/postgresql/to"
   mkdir -p "${pgdata_from}"
@@ -79,7 +80,7 @@
   [[ "$output" =~ "already exists. Dismiss pg_upgrade." ]]
 }
 
-@test "Same version" {
+@test "Same version dismisses upgrade" {
   pgdata_from="lib/postgresql/from"
   pgdata_to="lib/postgresql/to"
   mkdir -p "${pgdata_from}"

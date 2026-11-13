@@ -17,7 +17,7 @@ else
   export target_dir="${pgdata_base}/${target_version}/docker"
 fi
 
-if [ "${SKIP_NEW:-0}" = "1" ]; then
+if [ -d "${target_dir}" ] && [ "${SKIP_NEW:-0}" = "1" ]; then
   echo "Target dir ${target_dir} already exists. Dismiss pg_upgrade."
   exit 0
 fi
