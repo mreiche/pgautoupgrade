@@ -71,6 +71,7 @@ PGDATA_NEW=""         # New PostgreSQL data directory (optional)
 PGDATA_BASE="/var/lib/postgresql"  # PostgreSQL data mount point used for auto-detection when PGDATA_NEW is not set (optional)
 PGUPGRADE_OPTIONS=""  # Additional options for pg_upgrade (optional)
 PGTARGET="18"         # Target PostgreSQL major version (optional)
+SKIP_NEW="0"          # Skips the migration if new PostgreSQL data directory already exists (optional)
 CLEAN_NEW="0"         # Deletes the new PostgreSQL data (optional)
 CLEAN_OLD="0"         # Runs ./delete_old_cluster.sh after migration (optional)
 ```

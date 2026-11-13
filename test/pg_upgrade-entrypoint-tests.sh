@@ -62,6 +62,39 @@
   [[ "$output" =~ "Upgrading from lib/postgresql/from to lib/postgresql/to" ]]
 }
 
+@test "SKIP_NEW" {
+  pgdata_from="lib/postgresql/from"
+  pgdata_to="lib/postgresql/to"
+  mkdir -p "${pgdata_from}"
+  mkdir -p "${pgdata_to}"
+  echo "17" > "${pgdata_from}/PG_VERSION"
+  echo "18" > "${pgdata_to}/PG_VERSION"
+
+  run env \
+    PGDATA="${pgdata_from}" \
+    PGDATA_NEW="${pgdata_to}" \
+    SKIP_NEW="1" \
+    PGTARGET="18" \
+    "./pg_upgrade-entrypoint.sh"
+  [[ "$output" =~ "already exists. Dismiss pg_upgrade." ]]
+}
+
+@test "Same version" {
+  pgdata_from="lib/postgresql/from"
+  pgdata_to="lib/postgresql/to"
+  mkdir -p "${pgdata_from}"
+  mkdir -p "${pgdata_to}"
+  echo "18" > "${pgdata_from}/PG_VERSION"
+  echo "18" > "${pgdata_to}/PG_VERSION"
+
+  run env \
+    PGDATA="${pgdata_from}" \
+    PGDATA_NEW="${pgdata_to}" \
+    PGTARGET="18" \
+    "./pg_upgrade-entrypoint.sh"
+  [[ "$output" =~ "are identical. Dismiss pg_upgrade." ]]
+}
+
 teardown() {
   rm -rf ./lib
 }
