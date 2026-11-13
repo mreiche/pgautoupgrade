@@ -112,3 +112,12 @@ like to upgrade to, then change your docker image to match:
 ### Symptom: FATAL: logical replication slot "xxx" exists, but wal_level < logical
 * Reason: The old cluster was supporting a higher WAL level
 * Solution: Pass `PGUPGRADE_OPTIONS="-o '-c wal_level=logical"'`
+
+### Symptom: postgres: could not access the server configuration file "/var/lib/postgresql/pgdata/postgresql.conf": No such file or directory
+* Reason: The configuration file of the old cluster is somewhere else
+* Solution: Pass `PGUPGRADE_OPTIONS="-o '-c config_file=/etc/postgresql/postgresql.conf'"` and mount the volume
+  ```yaml
+  volumeMounts:
+    - name: config
+      mountPath: /etc/postgresql
+  ```
