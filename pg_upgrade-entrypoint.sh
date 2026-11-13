@@ -2,6 +2,13 @@
 
 set -e
 
+test -n "${PGTARGET}" || {
+  echo "PGTARGET is not defined. Aborting."
+  exit 2
+}
+
+export target_version=${PGTARGET%%.*}
+
 pgdata_base=${PGDATA_BASE:-/var/lib/postgresql}
 
 if [ -n "${PGDATA_NEW}" ]; then
@@ -14,11 +21,6 @@ if [ "${SKIP_NEW:-0}" = "1" ]; then
   echo "Target dir ${target_dir} already exists. Dismiss pg_upgrade."
   exit 0
 fi
-
-test -n "${PGTARGET}" || {
-  echo "PGTARGET is not defined. Aborting."
-  exit 2
-}
 
 test -n "${PGDATA}" || {
   echo "PGDATA is not defined. Aborting."
@@ -38,8 +40,6 @@ test -f "${source_dir}/PG_VERSION" || {
 }
 source_version=$(cat "${source_dir}/PG_VERSION")
 echo "Detected source version ${source_version} in ${source_dir}"
-
-export target_version=${PGTARGET%%.*}
 
 if [ "${target_version}" = "${source_version}" ]; then
   echo "Source (${source_version}) and target versions (${target_version}) are identical. Dismiss pg_upgrade."
