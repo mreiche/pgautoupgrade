@@ -127,11 +127,11 @@ test_migration() {
     docker stop "${test_name}"
 }
 
-@test "From 14 to 18 (${flavor}/${pg_flavor})" {
+@test "From 14-${pg_flavor} to 18-${pg_flavor} (${flavor})" {
   test_migration "14-${pg_flavor}" "18-${pg_flavor}"
 }
 
-@test "From 14 to 17 (${flavor}/${pg_flavor})" {
+@test "From 14-${pg_flavor} to 17-${pg_flavor} (${flavor})" {
   test_migration "14-${pg_flavor}" "17-${pg_flavor}"
 }
 

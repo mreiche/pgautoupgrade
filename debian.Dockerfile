@@ -42,7 +42,7 @@ RUN /usr/local/bin/build-postgres.sh
 
 FROM base-build AS build-18
 ## renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
-ENV PGVERSION=18.6
+ENV PGVERSION=18.7
 RUN /usr/local/bin/build-postgres.sh
 
 FROM debian:${DEBIAN_VERSION}
