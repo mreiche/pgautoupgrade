@@ -123,3 +123,11 @@ like to upgrade to, then change your docker image to match:
     - name: config
       mountPath: /etc/postgresql
   ```
+  
+### Symptom: Slow migration
+* Reason: Data must be copied and synced to disk
+* Solution: Try the following settings if you know what you are doing
+  ```shell
+  PGUPGRADE_OPTIONS="--link"  # Hard links instead of copying
+  PGCHECKSUMS_OPTIONS="--progress --no-sync"  # Not ACID compliant
+  ```
