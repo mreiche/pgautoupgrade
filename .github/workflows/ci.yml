@@ -16,8 +16,8 @@ env:
   REGISTRY: ghcr.io
   # renovate: datasource=repology depName=homebrew/postgresql@14 versioning=loose
   PG_FROM: "14"
-  # renovate: datasource=repology depName=homebrew/postgresql@18 versioning=loose
-  PG_TO: "18"
+  # renovate: datasource=repology depName=homebrew/postgresql@19 versioning=loose
+  PG_TO: "19"
 
 permissions:
   packages: write

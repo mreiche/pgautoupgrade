@@ -135,6 +135,10 @@ test_migration() {
   test_migration "14-${pg_flavor}" "17-${pg_flavor}"
 }
 
+@test "From 18-${pg_flavor} to 19-${pg_flavor} (${flavor})" {
+  test_migration "18-${pg_flavor}" "19-${pg_flavor}"
+}
+
 teardown() {
   # rm -rf ./pgdata
   echo "ignore"
