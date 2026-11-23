@@ -39,6 +39,7 @@ test_migration() {
     image=${3:-pgautoupgrade-${flavor}:latest}
 
     name="from_${from//-/_}_to_${to//-/_}"
+    pg_from=${from%%[^0-9]*}
     pg_target=${to%%[^0-9]*}
     test_name="${name}_test"
 
@@ -62,13 +63,19 @@ test_migration() {
     # Pre pull the image
     docker pull "postgres:${from}"
 
+    if [ "${pg_from}" -ge 18 ]; then
+      mount_target="/var/lib/postgresql/${pg_from}/docker"
+    else
+      mount_target="/var/lib/postgresql/data"
+    fi
+
     # Initial data
     docker run \
       --rm \
       --detach \
       -e POSTGRES_PASSWORD=secret \
       --name "${name}" \
-      -v "$(pwd)/${data_dir}:/var/lib/postgresql/data" \
+      -v "$(pwd)/${data_dir}:${mount_target}" \
       "postgres:${from}"
 
     retry "docker exec ${name} pg_isready"
@@ -109,6 +116,8 @@ test_migration() {
       -v "$(pwd)/${base_data_dir}:/var/lib/postgresql" \
       "${image}"
 
+    docker pull "postgres:${to}"
+
     # Test the migration
     docker run \
       --rm \
@@ -133,6 +142,10 @@ test_migration() {
 
 @test "From 14-${pg_flavor} to 17-${pg_flavor} (${flavor})" {
   test_migration "14-${pg_flavor}" "17-${pg_flavor}"
+}
+
+@test "From 18-${pg_flavor} to 19-${pg_flavor} (${flavor})" {
+  test_migration "18-${pg_flavor}" "19-${pg_flavor}"
 }
 
 teardown() {

@@ -49,6 +49,11 @@ FROM base-build AS build-18
 ENV PGVERSION=18.7
 RUN /usr/local/bin/build-postgres.sh
 
+FROM base-build AS build-19
+## renovate: datasource=repology depName=homebrew/postgresql@19 versioning=loose
+ENV PGVERSION=19.0
+RUN /usr/local/bin/build-postgres.sh
+
 # Use the PostgreSQL Alpine image as our output image base
 FROM alpine:${ALPINE_VERSION}
 
@@ -58,6 +63,7 @@ COPY --from=build-15 /usr/local-pg15 /usr/local-pg15
 COPY --from=build-16 /usr/local-pg16 /usr/local-pg16
 COPY --from=build-17 /usr/local-pg17 /usr/local-pg17
 COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
+COPY --from=build-19 /usr/local-pg19 /usr/local-pg19
 
 # Install locale
 RUN apk update \
