@@ -109,6 +109,8 @@ test_migration() {
       -v "$(pwd)/${base_data_dir}:/var/lib/postgresql" \
       "${image}"
 
+    docker pull "postgres:${to}"
+
     # Test the migration
     docker run \
       --rm \
