@@ -58,7 +58,7 @@ COPY --from=build-15 /usr/local-pg15 /usr/local-pg15
 COPY --from=build-16 /usr/local-pg16 /usr/local-pg16
 COPY --from=build-17 /usr/local-pg17 /usr/local-pg17
 COPY --from=build-18 /usr/local-pg18 /usr/local-pg18
-COPY --from=build-19 /usr/local-pg18 /usr/local-pg19
+COPY --from=build-19 /usr/local-pg19 /usr/local-pg19
 
 # Install locale and add suer
 RUN apt-get update \
