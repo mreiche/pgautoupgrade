@@ -15,7 +15,10 @@ mkdir -p "${target_dir}" || {
   echo whoami: $(id -u)
 }
 
-if [ "${target_version}" -ge 18 ]; then
+source_checksums=$(${source_bin_dir}/pg_controldata "${source_dir}" | awk -F ': *' '/Data page checksum version/ {print $2}')
+
+if [ "${source_checksums}" != "1" ] && [ "${target_version}" -ge 18 ]; then
+  # Flag is only available in >= 18
   initdb_args="--no-data-checksum"
 fi
 
@@ -39,7 +42,7 @@ eval "${target_bin_dir}/pg_upgrade \
   exit 1
 }
 
-if [ "${target_version}" -ge 18 ]; then
+if [ "${source_checksums}" != "1" ] && [ "${target_version}" -ge 18 ]; then
   eval "${target_bin_dir}/pg_checksums ${PGCHECKSUMS_OPTIONS:-} --enable -D '${target_dir}'"
 fi
 
